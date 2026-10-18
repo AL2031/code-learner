@@ -17,7 +17,7 @@ pre{background:#0f172a;color:#a7f3d0;padding:12px;border-radius:12px;white-space
 .msg{padding:12px 14px;border-radius:12px;margin-top:12px;font-weight:600;white-space:pre-wrap}.msg.ok{background:#58cc0233}.msg.no{background:#ff4b4b33}
 .key{margin-top:24px;padding:14px;border:2px dashed var(--line);border-radius:14px}.key input{width:68%;padding:8px;border-radius:8px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
 p{white-space:pre-wrap}small{display:block;opacity:.75;margin-top:6px}.tag{float:right;font-size:13px;opacity:.8}.chip{display:inline-block;background:var(--card);border-radius:8px;padding:0 8px;margin:2px;font:13px ui-monospace,monospace}
-.full{white-space:pre-wrap;margin:10px 0;padding:6px 14px;border-left:4px solid var(--b);background:var(--card);border-radius:8px}.full h3{margin:14px 0 4px}
+.full{margin:10px 0;padding:6px 14px;border-left:4px solid var(--b);background:var(--card);border-radius:8px}.full h3{margin:14px 0 4px}
 .lbl{font:700 12px/1 system-ui,sans-serif;letter-spacing:.6px;text-transform:uppercase;opacity:.7;margin:12px 0 4px}
 .cb{margin:14px 0}.cb textarea.src{display:block;min-height:0;margin:4px 0;color:#a7f3d0;resize:none;overflow:hidden;white-space:pre-wrap}.cb textarea.src:focus{outline:none;border-color:var(--b)}.cb pre{margin:4px 0}.cb .ro{margin-top:8px}
 .exp{background:var(--card);color:var(--fg);border:2px dashed var(--line)}.po{border-left:4px solid var(--g)}
@@ -26,6 +26,21 @@ p{white-space:pre-wrap}small{display:block;opacity:.75;margin-top:6px}.tag{float
 .err .ln{background:var(--r);color:#fff;border-radius:8px;padding:0 8px;font-size:13px}
 .err .et{font:700 15px/1.4 ui-monospace,monospace;margin:6px 0;word-break:break-word}
 .err .el{background:#0f172a;color:#fecaca;margin:6px 0}.err .el b{color:#94a3b8;font-weight:400;margin-right:14px}
+/* lesson text */
+.full p{margin:0 0 .55em;white-space:normal}.full ul,.full ol{margin:.3em 0 .8em;padding-left:1.4em}.full li{margin:.25em 0}
+.full h3{font-size:20px;margin:26px 0 8px}.full .blk:first-child h3{margin-top:10px}.full h4{font-size:17px;margin:0 0 6px}
+.blk.e{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}.blk.e:first-child{border-top:0;margin-top:0;padding-top:0}
+code{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:0 5px;font:.9em ui-monospace,monospace;overflow-wrap:anywhere}
+.cb button{margin-top:8px}.cb .lbl{margin-top:14px}.exp{margin:4px 0 12px}
+.msg.ai{font-weight:400;white-space:normal}.msg.ai p{margin:0 0 .55em}.msg.ai p:last-child{margin-bottom:0}
+/* ask the AI */
+.askrow{margin:10px 0 4px}
+.ask{background:transparent;color:var(--b);border-color:var(--b);padding:4px 12px;font-size:14px;border-radius:12px}
+.askbox{margin:8px 0 14px;padding:12px;border:2px solid var(--b);border-radius:12px;background:var(--bg)}
+.am .aqu{margin:6px 0 4px;padding:8px 12px;border-radius:12px;background:var(--card);font-weight:600;white-space:pre-wrap}
+.am .aqa{margin:4px 0 12px;padding:2px 4px 2px 12px;border-left:4px solid var(--g)}.am .aqa.bad{border-left-color:var(--r);color:var(--r)}
+.aqc{margin:8px 0 4px}.aqc button{font-size:13px;padding:4px 10px;margin:0 6px 6px 0;border-radius:10px}
+textarea.aqi{display:block;min-height:0;margin:6px 0 8px;font:15px/1.4 system-ui,sans-serif}
 .err .ex{margin:6px 0}.err details{margin-top:6px;font-size:13px}.err summary{cursor:pointer;opacity:.8}.err details pre{font-size:12px;color:#cbd5e1}
 </style></head><body><div id="a"></div><script>
 const D=[
@@ -643,7 +658,7 @@ function home(){cur=null;const t=day(),due=D.filter((_,i)=>K(i).n&&K(i).due<=t).
 A.innerHTML=`<div class=top><b>PyQuest</b><span style="margin-left:auto">Streak ${S.streak} · XP ${S.xp}</span></div><h2>Python: zero to every built-in</h2><p>Overall mastery: ${avg}%</p>`+(due?`<button class=main onclick="rev()">Review ${due} due topic${due>1?"s":""}</button>`:`<small>No reviews due. Finish a lesson to start your spaced-repetition schedule.</small>`)+D.map((l,i)=>{const k=K(i);return`<button class=card onclick="go(${i})">${i+1}. ${l.t}<span class=tag>${LV[k.b]}${k.w>=2&&k.b<3?" · needs work":""}${k.n&&k.due<=t?" · due":""}${k.p?" · project done":""}</span><div class=bar style="height:8px;margin-top:6px"><i style="width:${k.b*20}%"></i></div></button>`}).join("")+`<button class=card onclick="bk()">Build all full lessons</button><small id=bs></small><button class=card onclick="cov()">Built-in coverage check</button>`}
 function go(i){cur=i;st=0;stage()}
 function stage(){const t=D[cur];if(st==0)return learn(t);if(st<3)return showQ(cur,t.q[st-1],`Quick check ${st}/2`,()=>{st++;stage()});if(st<5)return code(t,st==3?"x":"d");if(st==5)return code(t,"p");fin()}
-function learn(t){A.innerHTML=hd(0)+`<h2>${t.t}</h2><p>${esc(t.n)}</p><div>${t.b.split(" ").map(x=>`<span class=chip>${x}</span>`).join("")}</div><div id=full class=full></div><button class=sec onclick="lf(1)">Rewrite full lesson</button><p>Edit the example and run it:</p><textarea id=ex>${esc(t.ex)}</textarea><button class=sec style="margin-top:8px" onclick="tr()">Run it</button> <button class=sec onclick="tx()">Explain this code</button><div id=o hidden></div><div class=msg id=xp hidden></div><button class=main onclick="st=1;stage()">Continue</button>`;tabs();lf()}
+function learn(t){A.innerHTML=hd(0)+`<h2>${t.t}</h2><p>${esc(t.n)}</p><div>${t.b.split(" ").map(x=>`<span class=chip>${x}</span>`).join("")}</div><div id=full class=full></div><button class=sec onclick="lf(1)">Rewrite full lesson</button><p>Edit the example and run it:</p><textarea id=ex>${esc(t.ex)}</textarea><button class=sec style="margin-top:8px" onclick="tr()">Run it</button> <button class=sec onclick="tx()">Explain this code</button><div id=o hidden></div><div class="msg ai" id=xp hidden></div><button class=main onclick="st=1;stage()">Continue</button>`;tabs();lf()}
 /* Turns a pasted REPL transcript (">>> code", "... more", plain output lines) into just the code. */
 const clean=s=>{const L=String(s).replace(/\r/g,"").split("\n");if(!L.some(l=>/^\s*>>>(\s|$)/.test(l)))return L.join("\n");return L.map(l=>l.match(/^\s*(?:>>>|\.\.\.)(?: (.*))?$/)).filter(Boolean).map(m=>m[1]||"").join("\n").trim()};
 /* Reads a Pyodide traceback: error type, message, and the line number in the learner's code. */
@@ -657,7 +672,7 @@ return`<div class=err><div class=eh>${v.phase=="load"?"Python could not start":"
 const view=v=>(v.o?`<div class=lbl>Output</div><pre class=po>${esc(v.o.replace(/\n+$/,""))}</pre>`:v.ok?`<small>Ran fine. Nothing was printed.</small>`:"")+(v.ok?"":errBox(v));
 async function tr(){const p=$("o");p.hidden=false;p.innerHTML="<small>Running…</small>";p.innerHTML=view(await run($("ex").value))}
 async function ai(task,data){if(API.includes("YOUR-PROJECT"))throw new Error("Set the API constant at the top of the script to your Vercel URL.");let r;try{r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,task})})}catch(e){throw new Error("Can't reach the tutor server. Check your connection.")}let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||"Tutor server error (HTTP "+r.status+")");return j.text}
-async function tx(){const o=$("xp");o.hidden=false;o.textContent="Thinking…";try{o.textContent=await ai("explain",{code:clean($("ex").value)})}catch(e){o.textContent="Error: "+e.message}}
+async function tx(){const o=$("xp");o.hidden=false;o.textContent="Thinking…";try{const a=await ai("explain",{code:clean($("ex").value)});o.innerHTML=body(String(a).replace(/\r/g,"").split("\n"));fit(o)}catch(e){o.textContent="Error: "+e.message}}
 async function run(code,test){code=clean(code);let o="";
 try{if(!py)py=await loadPyodide();py.setStdout({batched:s=>o+=s+"\n"});py.setStderr({batched:s=>o+=s+"\n"})}catch(e){return{ok:false,o,code,phase:"load",type:"Engine error",msg:String(e.message||e),full:String(e.stack||e)}}
 const g=py.globals.get("dict")();
@@ -674,7 +689,7 @@ function code(t,kd){const e=gE(kd),pj=kd=="p";passed=false;A.innerHTML=hd(st/6*1
 async function cc(kd){if(passed){st++;return stage()}const b=$("chk"),r=$("res"),e=gE(kd),k=K(cur),src=$("c").value;if(kd=="p"){S.pc[cur]=src;sv()}b.disabled=true;b.textContent="Running...";const v=await run(src,e.t);b.disabled=false;b.textContent="Check";tick();
 if(v.ok){passed=true;if(!k[kd]){k[kd]=1;S.xp+=kd=="x"?20:kd=="d"?25:60}if(kd=="p")S.pp[cur]=src;rate(cur,true);b.textContent=kd=="p"?"Finish":"Next";r.innerHTML=`<pre>${esc(v.o||"(no output)")}</pre><div class="msg ok">All checks passed.</div>`}
 else{k.w++;sv();r.innerHTML=view(v)+(k.w>=2?`<small>Stuck? The Hint button is free.</small>`:"")}}
-async function ht(kd){const e=gE(kd),r=$("res");r.insertAdjacentHTML("beforeend",`<div class=msg>Hint: ${esc(e.h)}</div>`);try{const t=await ai("hint",{prompt:e.p,code:$("c").value});r.insertAdjacentHTML("beforeend",`<div class=msg>Tutor: ${esc(t)}</div>`)}catch(x){}}
+async function ht(kd){const e=gE(kd),r=$("res");r.insertAdjacentHTML("beforeend",`<div class=msg>Hint: ${esc(e.h)}</div>`);try{const t=await ai("hint",{prompt:e.p,code:$("c").value});r.insertAdjacentHTML("beforeend",`<div class=msg>Tutor: ${inl(t)}</div>`)}catch(x){}}
 function fin(){const k=K(cur);if(!k.fin){k.fin=1;S.xp+=50}sv();A.innerHTML=`<div style="text-align:center;padding:40px 0"><h2>${D[cur].t} complete!</h2><p>Mastery: ${LV[k.b]} · Your next review is scheduled automatically.</p><button class=main onclick="home()">Continue</button></div>`}
 function rev(){const t=day();rq=D.map((_,i)=>i).filter(i=>K(i).n&&K(i).due<=t).sort((a,b)=>K(b).w-K(a).w);cur=null;nr()}
 function nr(){if(!rq.length){A.innerHTML=`<div style="text-align:center;padding:40px 0"><h2>Review done!</h2><button class=main onclick="home()">Continue</button></div>`;return}const i=rq.shift();showQ(i,D[i].q[Math.random()*2|0],"Review · "+D[i].t,nr)}
@@ -686,9 +701,48 @@ print(json.dumps([[x for x in n if x not in ex and x not in cn],ex,cn]))`);
 if(!r.ok){A.innerHTML=hd()+errBox(r);return}
 const c=new Set(D.flatMap(t=>t.b.split(" "))),G=JSON.parse(r.o);
 A.innerHTML=hd()+`<h2>Built-in coverage</h2><p>Checked live against the built-ins of the Python running in your browser.</p>`+["Functions & types","Exceptions","Constants"].map((n,i)=>{const a=G[i],m=a.filter(x=>!c.has(x));return`<p><b>${n}: ${a.length-m.length}/${a.length} taught</b><small>${m.length?"Not yet covered: "+m.join(", "):"Complete"}</small></p>`}).join("")}
-const fmt=t=>t.split("```").map((s,i)=>{if(!(i%2))return esc(s.trim()).replace(/^## (.*)\n?/gm,"<h3>$1</h3>").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");const m=s.match(/^([\w+-]*)\n/),lang=(m?m[1]:"").toLowerCase(),body=s.replace(/^[\w+-]*\n/,"").replace(/\s+$/,"");
-if(["output","text","console","stdout","error"].includes(lang))return`<div class=lbl>${lang=="error"?"Expected error":"Expected output"}</div><pre class=exp>${esc(body)}</pre>`;
-return`<div class=cb><div class=lbl>Python · edit it, then run it</div><textarea class=src spellcheck=false rows=${body.split("\n").length} oninput="gr(this)">${esc(clean(body))}</textarea><button class=sec onclick="rb(this)">Run this code</button> <button class=sec onclick="rs(this)">Reset</button><div class=ro hidden></div></div>`}).join("");
+/* ---- Lesson renderer. Turns the AI's lesson text into HTML: headings, paragraphs, bullet and numbered lists, `inline code`, **bold**, runnable code blocks and expected-output blocks. ---- */
+const inl=s=>String(s).split(/(`[^`\n]+`)/).map((p,i)=>i%2?`<code>${esc(p.slice(1,-1))}</code>`:esc(p).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")).join("");
+const cbk=(lang,L)=>{const b=L.join("\n").replace(/\s+$/,"");
+if(["output","text","console","stdout","error"].includes(lang))return`<div class=lbl>${lang=="error"?"Expected error":"Expected output"}</div><pre class=exp>${esc(b)}</pre>`;
+return`<div class=cb><div class=lbl>Python · edit it, then run it</div><textarea class=src spellcheck=false rows=${b.split("\n").length} oninput="gr(this)">${esc(clean(b))}</textarea><button class=sec onclick="rb(this)">Run this code</button> <button class=sec onclick="rs(this)">Reset</button><div class=ro hidden></div></div>`};
+/* Lines of text -> HTML. Each text line is its own paragraph; consecutive "- " or "1. " lines become one list. */
+function body(L){let o="",lt=null,fe=null,buf=[];const cl=()=>{if(lt){o+=`</${lt}>`;lt=null}};
+for(const l of L){
+if(fe!==null){if(/^\s*```\s*$/.test(l)){o+=cbk(fe,buf);fe=null;buf=[]}else buf.push(l);continue}
+let m=l.match(/^\s*```\s*([\w+-]*)\s*$/);if(m){cl();fe=m[1].toLowerCase();buf=[];continue}
+if(!l.trim()){cl();continue}
+m=l.match(/^\s*[-*\u2022]\s+(.*)$/);if(m){if(lt!="ul"){cl();o+="<ul>";lt="ul"}o+=`<li>${inl(m[1])}</li>`;continue}
+m=l.match(/^\s*\d+[.)]\s+(.*)$/);if(m){if(lt!="ol"){cl();o+="<ol>";lt="ol"}o+=`<li>${inl(m[1])}</li>`;continue}
+cl();o+=`<p>${inl(l.trim())}</p>`}
+cl();if(fe!==null&&buf.length)o+=cbk(fe,buf);return o}
+/* Splits a lesson into blocks: one per "## " section, and inside a section one per "**name**" entry line. Each block can be asked about. */
+function parse(t){const B=[];let b=null,fence=false,sec="";const open=(kind,title)=>{b={kind,title,sec,items:[]};B.push(b)};
+for(const l of String(t).replace(/\r/g,"").split("\n")){
+if(/^\s*```/.test(l)){if(!b)open("p","");b.items.push(l);fence=!fence;continue}
+if(!fence){let m=l.match(/^##\s+(.*)$/);if(m){sec=m[1].trim();open("h",sec);continue}
+m=l.match(/^\s*\*\*([^*`]+)\*\*\s*:?\s*$/);if(m){open("e",m[1].trim());continue}}
+if(!b)open("p","");b.items.push(l)}
+return B}
+const SECS=[],ASKH={};
+const fmt=t=>{SECS.length=0;for(const k in ASKH)delete ASKH[k];const u=cur!=null&&D[cur]?D[cur].t:"";
+return parse(t).map(b=>{const head=b.kind=="h"?`<h3>${inl(b.title)}</h3>`:b.kind=="e"?`<h4>${inl(b.title)}</h4>`:"";let ask="";
+if(b.items.some(x=>x.trim())){const n=SECS.push({unit:u,sec:b.sec,title:b.title,text:b.items.join("\n").trim()})-1;
+ask=`<div class=askrow><button class=ask onclick="aq(${n})">Confused? Ask the AI</button></div><div class=askbox id=ab-${n} hidden></div>`}
+return`<div class="blk ${b.kind}">${head}${body(b.items)}${ask}</div>`}).join("")};
+/* ---- Ask the AI about one block of the lesson. The conversation for each block is kept in memory so follow-up questions work. ---- */
+const ASKQ=["Explain it more simply","Give me another example","Why does this matter?"];
+function aq(n){const b=$("ab-"+n);if(!b)return;if(!b.hidden){b.hidden=true;return}b.hidden=false;
+if(!b.dataset.init){b.dataset.init=1;b.innerHTML=`<div class=am id=am-${n}></div><div class=aqc>${ASKQ.map(x=>`<button onclick="askGo(${n},this.textContent)">${x}</button>`).join("")}</div><textarea class=aqi id=aqt-${n} rows=2 spellcheck=true placeholder="Type your question. For example: what does this line do, or what does this word mean?" onkeydown="aqk(event,${n})"></textarea><button class=sec id=aqb-${n} onclick="askGo(${n})">Ask</button> <button class=x onclick="aq(${n})">Close</button>`}
+$("aqt-"+n).focus()}
+function aqk(e,n){if(e.key=="Enter"&&!e.shiftKey){e.preventDefault();askGo(n)}}
+async function askGo(n,pre){const t=$("aqt-"+n),bt=$("aqb-"+n),m=$("am-"+n),s=SECS[n];if(!t||!s||bt.disabled)return;const q=(pre||t.value).trim();if(!q)return;
+const h=ASKH[n]=ASKH[n]||[];t.value="";bt.disabled=true;bt.textContent="Thinking…";
+m.insertAdjacentHTML("beforeend",`<div class=aqu>${esc(q)}</div>`);const w=document.createElement("div");w.className="aqa";w.textContent="Thinking…";m.appendChild(w);
+try{const a=cut(await ai("ask",{unit:s.unit,section:s.sec,part:s.title,text:s.text,question:q,history:h.slice(-6)}));
+h.push({role:"user",text:q},{role:"assistant",text:a});w.innerHTML=body(a.split("\n"));fit(w)}
+catch(e){w.className="aqa bad";w.textContent="Could not get an answer: "+e.message}
+bt.disabled=false;bt.textContent="Ask";w.scrollIntoView({block:"nearest",behavior:"smooth"})}
 try{localStorage.removeItem("pf3")}catch(e){}
 const gc=()=>{try{return JSON.parse(localStorage.getItem(PF))||{}}catch(e){return{}}};
 /* If a part was cut off inside a code block, drop that unfinished block so it cannot flip the code/text parity of the rest. */
