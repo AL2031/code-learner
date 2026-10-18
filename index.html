@@ -17,7 +17,7 @@ pre{background:#0f172a;color:#a7f3d0;padding:12px;border-radius:12px;white-space
 .msg{padding:12px 14px;border-radius:12px;margin-top:12px;font-weight:600;white-space:pre-wrap}.msg.ok{background:#58cc0233}.msg.no{background:#ff4b4b33}
 .key{margin-top:24px;padding:14px;border:2px dashed var(--line);border-radius:14px}.key input{width:68%;padding:8px;border-radius:8px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
 p{white-space:pre-wrap}small{display:block;opacity:.75;margin-top:6px}.tag{float:right;font-size:13px;opacity:.8}.chip{display:inline-block;background:var(--card);border-radius:8px;padding:0 8px;margin:2px;font:13px ui-monospace,monospace}
-.full{margin:10px 0;padding:6px 14px;border-left:4px solid var(--b);background:var(--card);border-radius:8px}.full h3{margin:14px 0 4px}
+.full{white-space:pre-wrap;margin:10px 0;padding:6px 14px;border-left:4px solid var(--b);background:var(--card);border-radius:8px}.full h3{margin:14px 0 4px}
 .lbl{font:700 12px/1 system-ui,sans-serif;letter-spacing:.6px;text-transform:uppercase;opacity:.7;margin:12px 0 4px}
 .cb{margin:14px 0}.cb pre{margin:4px 0}.cb .ro{margin-top:8px}
 .exp{background:var(--card);color:var(--fg);border:2px dashed var(--line)}.po{border-left:4px solid var(--g)}
@@ -628,7 +628,7 @@ assert got==[("ok",6),("ok",1)],"run_all returns results in job order"`}
 ];
 const ORD=[`Variables & Types`,`Numbers & Math`,`Deep Dive: Numbers, Floats & Conversions`,`Text & Number Bases`,`String Methods in Depth`,`Logic & Loops`,`Collections`,`Collection Methods in Depth`,`Functions`,`Deep Dive: Arguments, Closures & Decorators`,`Deep Dive: Comprehensions & Generators`,`Errors & Exceptions`,`Files & Input`,`Context Managers`,`Exceptions I: Core Hierarchy`,`Exceptions II: Files, OS & Imports`,`Exceptions III: Text, Syntax, Control & Warnings`,`Bitwise Operators & Number Systems`,`Bytes & Raw Data`,`Objects & Introspection`,`Deep Dive: Inheritance, Dunders & Dataclasses`,`Special Values & Interpreter`,`Code as Data & Namespaces`,`Standard Library Tour`,`match, Walrus & Type Hints`,`Testing: assert & unittest`,`Async Iteration`,`Async/Await & asyncio`],OLDT=D.map(t=>t.t);
 {const m=new Map(D.map((t,i)=>[t.t,[t,P[i]]]));D.length=0;P.length=0;ORD.forEach(n=>{const[t,p]=m.get(n);D.push(t);P.push(p)})}
-const $=id=>document.getElementById(id),A=$("a"),API="https://good-code-tutorials.vercel.app/api/chat",PF="pf3",IV=[0,1,3,7,16,35],LV=["New","Started","Learning","Practiced","Strong","Mastered"];
+const $=id=>document.getElementById(id),A=$("a"),API="https://good-code-tutorials.vercel.app/api/chat",PF="pf4",IV=[0,1,3,7,16,35],LV=["New","Started","Learning","Practiced","Strong","Mastered"];
 const day=()=>Math.floor(Date.now()/864e5),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let S={xp:0,streak:0,last:0,k:{}},cur=null,st=0,py=null,passed=false,q=null,sel=null,ans=false,after=null,lab="",rq=[];
 try{Object.assign(S,JSON.parse(localStorage.getItem("pq")))}catch(e){}if(!S.k)S.k={};S.pc=S.pc||{};S.pp=S.pp||{};if(S.v!=2){const nk={},pc={},pp={};OLDT.forEach((n,i)=>{const j=ORD.indexOf(n);if(S.k[i])nk[j]=S.k[i];if(S.pc[i])pc[j]=S.pc[i];if(S.pp[i])pp[j]=S.pp[i]});S.k=nk;S.pc=pc;S.pp=pp;S.v=2}
@@ -689,10 +689,14 @@ A.innerHTML=hd()+`<h2>Built-in coverage</h2><p>Checked live against the built-in
 const fmt=t=>t.split("```").map((s,i)=>{if(!(i%2))return esc(s.trim()).replace(/^## (.*)\n?/gm,"<h3>$1</h3>").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");const m=s.match(/^([\w+-]*)\n/),lang=(m?m[1]:"").toLowerCase(),body=s.replace(/^[\w+-]*\n/,"").replace(/\s+$/,"");
 if(["output","text","console","stdout","error"].includes(lang))return`<div class=lbl>${lang=="error"?"Expected error":"Expected output"}</div><pre class=exp>${esc(body)}</pre>`;
 return`<div class=cb><div class=lbl>Python</div><pre class=src>${esc(clean(body))}</pre><button class=sec onclick="rb(this)">Run this code</button><div class=ro hidden></div></div>`}).join("");
+try{localStorage.removeItem("pf3")}catch(e){}
 const gc=()=>{try{return JSON.parse(localStorage.getItem(PF))||{}}catch(e){return{}}};
-const fl=t=>ai("lesson",{title:t.t,notes:t.n,builtins:t.b});
+/* If a part was cut off inside a code block, drop that unfinished block so it cannot flip the code/text parity of the rest. */
+const cut=s=>{s=String(s).trim();return(s.split("```").length-1)%2?s.slice(0,s.lastIndexOf("```")).trim():s};
+/* A full lesson is written in two calls (part 1 and part 2) that run at the same time, then joined. */
+const fl=async t=>{const d={title:t.t,notes:t.n,builtins:t.b},[a,b]=await Promise.all([1,2].map(part=>ai("lesson",{...d,part})));return cut(a)+"\n\n"+cut(b)};
 async function rb(b){const w=b.closest(".cb"),o=w.querySelector(".ro");o.hidden=false;o.innerHTML="<small>Running…</small>";o.innerHTML=view(await run(w.querySelector(".src").textContent))}
-async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);return}el.innerHTML="<small>Writing your full lesson… this takes about 20 to 40 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x)}catch(e){el.textContent="Could not load the lesson: "+e.message}}
+async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);return}el.innerHTML="<small>Writing your full lesson… this takes about 30 to 60 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x)}catch(e){el.textContent="Could not load the lesson: "+e.message}}
 async function bk(){const o=$("bs"),w=ms=>new Promise(r=>setTimeout(r,ms));let n=0,bad=0;for(const t of D){n++;o.textContent="Building "+n+"/"+D.length+": "+t.t;if(gc()[t.t])continue;let ok=0;for(let a=0;a<3&&!ok;a++){try{const x=await fl(t),m=gc();m[t.t]=x;localStorage.setItem(PF,JSON.stringify(m));ok=1}catch(e){if(/Set the API/.test(e.message)){o.textContent=e.message;return}await w(8000)}}if(!ok)bad++;await w(1500)}o.textContent=bad?"Done, but "+bad+" lesson(s) failed. Press the button again to retry them.":"All full lessons are ready (saved in this browser)."}
 home();
 </script></body></html>
