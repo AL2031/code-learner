@@ -40,6 +40,11 @@ code{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding
 .am .aqu{margin:6px 0 4px;padding:8px 12px;border-radius:12px;background:var(--card);font-weight:600;white-space:pre-wrap}
 .am .aqa{margin:4px 0 12px;padding:2px 4px 2px 12px;border-left:4px solid var(--g)}.am .aqa.bad{border-left-color:var(--r);color:var(--r)}
 .aqc{margin:8px 0 4px}.aqc button{font-size:13px;padding:4px 10px;margin:0 6px 6px 0;border-radius:10px}
+.af{margin:2px 0 6px;font-size:14px}.af i{font-style:normal;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:1px 8px;overflow-wrap:anywhere}
+.am .aqf{font-size:13px;font-weight:400;opacity:.8;margin-bottom:2px;overflow-wrap:anywhere}
+.chk{margin:10px 0 4px;padding:10px 12px;border:2px dashed var(--g);border-radius:12px}.chk p{margin:0 0 6px}.chk .lbl{margin-top:0}.chk[data-done] {border-style:solid;background:#58cc0222}.ckr{margin-top:8px;font-size:14px}
+.cb .ask{padding:8px 14px;font-size:inherit;border-radius:14px}
+#selask{position:fixed;z-index:50;background:var(--b);border-color:#1899d6;color:#fff;padding:6px 12px;font-size:14px;border-radius:12px;box-shadow:0 4px 14px #0005}
 textarea.aqi{display:block;min-height:0;margin:6px 0 8px;font:15px/1.4 system-ui,sans-serif}
 .err .ex{margin:6px 0}.err details{margin-top:6px;font-size:13px}.err summary{cursor:pointer;opacity:.8}.err details pre{font-size:12px;color:#cbd5e1}
 </style></head><body><div id="a"></div><script>
@@ -651,7 +656,7 @@ const sv=()=>{try{localStorage.setItem("pq",JSON.stringify(S))}catch(e){}};
 const K=i=>S.k[i]||(S.k[i]={b:0,w:0,due:0,n:0,x:0,d:0});
 function rate(i,ok){const k=K(i);k.n++;if(ok)k.b=Math.min(5,k.b+1);else{k.b=Math.max(0,k.b-2);k.w++}k.due=day()+IV[k.b];sv()}
 function tick(){const t=day();if(S.last!=t){S.streak=S.last==t-1?S.streak+1:1;S.last=t}}
-const hd=p=>`<div class=top><button class=x onclick="home()">Back</button>${p!=null?`<div class=bar><i style="width:${p}%"></i></div>`:`<span style="flex:1"></span>`}<span>XP ${S.xp}</span></div>`;
+const hd=p=>`<div class=top><button class=x onclick="home()">Back</button>${p!=null?`<div class=bar><i style="width:${p}%"></i></div>`:`<span style="flex:1"></span>`}<span id=xpv>XP ${S.xp}</span></div>`;
 const tabs=()=>{for(const t of A.querySelectorAll("textarea"))t.onkeydown=e=>{if(e.key=="Tab"){e.preventDefault();document.execCommand("insertText",false,"    ")}}};
 
 function home(){cur=null;const t=day(),due=D.filter((_,i)=>K(i).n&&K(i).due<=t).length,avg=Math.round(D.reduce((s,_,i)=>s+K(i).b,0)/D.length*20);
@@ -672,7 +677,7 @@ return`<div class=err><div class=eh>${v.phase=="load"?"Python could not start":"
 const view=v=>(v.o?`<div class=lbl>Output</div><pre class=po>${esc(v.o.replace(/\n+$/,""))}</pre>`:v.ok?`<small>Ran fine. Nothing was printed.</small>`:"")+(v.ok?"":errBox(v));
 async function tr(){const p=$("o");p.hidden=false;p.innerHTML="<small>Running…</small>";p.innerHTML=view(await run($("ex").value))}
 async function ai(task,data){if(API.includes("YOUR-PROJECT"))throw new Error("Set the API constant at the top of the script to your Vercel URL.");let r;try{r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,task})})}catch(e){throw new Error("Can't reach the tutor server. Check your connection.")}let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||"Tutor server error (HTTP "+r.status+")");return j.text}
-async function tx(){const o=$("xp");o.hidden=false;o.textContent="Thinking…";try{const a=await ai("explain",{code:clean($("ex").value)});o.innerHTML=body(String(a).replace(/\r/g,"").split("\n"));fit(o)}catch(e){o.textContent="Error: "+e.message}}
+async function tx(){const o=$("xp");o.hidden=false;o.textContent="Thinking…";try{const a=await ai("explain",{code:clean($("ex").value)});o.innerHTML=body(String(a).replace(/\r/g,"").split("\n"),false);fit(o)}catch(e){o.textContent="Error: "+e.message}}
 async function run(code,test){code=clean(code);let o="";
 try{if(!py)py=await loadPyodide();py.setStdout({batched:s=>o+=s+"\n"});py.setStderr({batched:s=>o+=s+"\n"})}catch(e){return{ok:false,o,code,phase:"load",type:"Engine error",msg:String(e.message||e),full:String(e.stack||e)}}
 const g=py.globals.get("dict")();
@@ -703,19 +708,19 @@ const c=new Set(D.flatMap(t=>t.b.split(" "))),G=JSON.parse(r.o);
 A.innerHTML=hd()+`<h2>Built-in coverage</h2><p>Checked live against the built-ins of the Python running in your browser.</p>`+["Functions & types","Exceptions","Constants"].map((n,i)=>{const a=G[i],m=a.filter(x=>!c.has(x));return`<p><b>${n}: ${a.length-m.length}/${a.length} taught</b><small>${m.length?"Not yet covered: "+m.join(", "):"Complete"}</small></p>`}).join("")}
 /* ---- Lesson renderer. Turns the AI's lesson text into HTML: headings, paragraphs, bullet and numbered lists, `inline code`, **bold**, runnable code blocks and expected-output blocks. ---- */
 const inl=s=>String(s).split(/(`[^`\n]+`)/).map((p,i)=>i%2?`<code>${esc(p.slice(1,-1))}</code>`:esc(p).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")).join("");
-const cbk=(lang,L)=>{const b=L.join("\n").replace(/\s+$/,"");
+const cbk=(lang,L,ak)=>{const b=L.join("\n").replace(/\s+$/,"");
 if(["output","text","console","stdout","error"].includes(lang))return`<div class=lbl>${lang=="error"?"Expected error":"Expected output"}</div><pre class=exp>${esc(b)}</pre>`;
-return`<div class=cb><div class=lbl>Python · edit it, then run it</div><textarea class=src spellcheck=false rows=${b.split("\n").length} oninput="gr(this)">${esc(clean(b))}</textarea><button class=sec onclick="rb(this)">Run this code</button> <button class=sec onclick="rs(this)">Reset</button><div class=ro hidden></div></div>`};
+return`<div class=cb><div class=lbl>Python · edit it, then run it</div><textarea class=src spellcheck=false rows=${b.split("\n").length} oninput="gr(this)">${esc(clean(b))}</textarea><button class=sec onclick="rb(this)">Run this code</button> <button class=sec onclick="rs(this)">Reset</button>${ak?` <button class=ask onclick="askCode(this)">Ask about this code</button>`:""}<div class=ro hidden></div></div>`};
 /* Lines of text -> HTML. Each text line is its own paragraph; consecutive "- " or "1. " lines become one list. */
-function body(L){let o="",lt=null,fe=null,buf=[];const cl=()=>{if(lt){o+=`</${lt}>`;lt=null}};
+function body(L,ak=true){let o="",lt=null,fe=null,buf=[];const cl=()=>{if(lt){o+=`</${lt}>`;lt=null}};
 for(const l of L){
-if(fe!==null){if(/^\s*```\s*$/.test(l)){o+=cbk(fe,buf);fe=null;buf=[]}else buf.push(l);continue}
+if(fe!==null){if(/^\s*```\s*$/.test(l)){o+=cbk(fe,buf,ak);fe=null;buf=[]}else buf.push(l);continue}
 let m=l.match(/^\s*```\s*([\w+-]*)\s*$/);if(m){cl();fe=m[1].toLowerCase();buf=[];continue}
 if(!l.trim()){cl();continue}
 m=l.match(/^\s*[-*\u2022]\s+(.*)$/);if(m){if(lt!="ul"){cl();o+="<ul>";lt="ul"}o+=`<li>${inl(m[1])}</li>`;continue}
 m=l.match(/^\s*\d+[.)]\s+(.*)$/);if(m){if(lt!="ol"){cl();o+="<ol>";lt="ol"}o+=`<li>${inl(m[1])}</li>`;continue}
 cl();o+=`<p>${inl(l.trim())}</p>`}
-cl();if(fe!==null&&buf.length)o+=cbk(fe,buf);return o}
+cl();if(fe!==null&&buf.length)o+=cbk(fe,buf,ak);return o}
 /* Splits a lesson into blocks: one per "## " section, and inside a section one per "**name**" entry line. Each block can be asked about. */
 function parse(t){const B=[];let b=null,fence=false,sec="";const open=(kind,title)=>{b={kind,title,sec,items:[]};B.push(b)};
 for(const l of String(t).replace(/\r/g,"").split("\n")){
@@ -724,25 +729,62 @@ if(!fence){let m=l.match(/^##\s+(.*)$/);if(m){sec=m[1].trim();open("h",sec);cont
 m=l.match(/^\s*\*\*([^*`]+)\*\*\s*:?\s*$/);if(m){open("e",m[1].trim());continue}}
 if(!b)open("p","");b.items.push(l)}
 return B}
-const SECS=[],ASKH={};
-const fmt=t=>{SECS.length=0;for(const k in ASKH)delete ASKH[k];const u=cur!=null&&D[cur]?D[cur].t:"";
-return parse(t).map(b=>{const head=b.kind=="h"?`<h3>${inl(b.title)}</h3>`:b.kind=="e"?`<h4>${inl(b.title)}</h4>`:"";let ask="";
-if(b.items.some(x=>x.trim())){const n=SECS.push({unit:u,sec:b.sec,title:b.title,text:b.items.join("\n").trim()})-1;
+const SECS=[];
+const fmt=t=>{SECS.length=0;for(const o of[ASKH,ASKF,ASKB,CKQ])for(const k in o)delete o[k];const u=cur!=null&&D[cur]?D[cur].t:"";
+return parse(t).map(b=>{const head=b.kind=="h"?`<h3>${inl(b.title)}</h3>`:b.kind=="e"?`<h4>${inl(b.title)}</h4>`:"";let ask="",dn="";
+if(b.items.some(x=>x.trim())){const n=SECS.push({unit:u,sec:b.sec,title:b.title,text:b.items.join("\n").trim()})-1;dn=` data-n=${n}`;
 ask=`<div class=askrow><button class=ask onclick="aq(${n})">Confused? Ask the AI</button></div><div class=askbox id=ab-${n} hidden></div>`}
-return`<div class="blk ${b.kind}">${head}${body(b.items)}${ask}</div>`}).join("")};
-/* ---- Ask the AI about one block of the lesson. The conversation for each block is kept in memory so follow-up questions work. ---- */
-const ASKQ=["Explain it more simply","Give me another example","Why does this matter?"];
-function aq(n){const b=$("ab-"+n);if(!b)return;if(!b.hidden){b.hidden=true;return}b.hidden=false;
-if(!b.dataset.init){b.dataset.init=1;b.innerHTML=`<div class=am id=am-${n}></div><div class=aqc>${ASKQ.map(x=>`<button onclick="askGo(${n},this.textContent)">${x}</button>`).join("")}</div><textarea class=aqi id=aqt-${n} rows=2 spellcheck=true placeholder="Type your question. For example: what does this line do, or what does this word mean?" onkeydown="aqk(event,${n})"></textarea><button class=sec id=aqb-${n} onclick="askGo(${n})">Ask</button> <button class=x onclick="aq(${n})">Close</button>`}
-$("aqt-"+n).focus()}
+return`<div class="blk ${b.kind}"${dn}>${head}${body(b.items)}${ask}</div>`}).join("")};
+/* ---- Ask the AI about one block of the lesson. ----
+   Precision: the learner can pin the exact words or code they mean (select text, or press "Ask about this code").
+   Engagement: every answer comes with clickable follow-up questions and usually a quick check worth XP. */
+const ASKH={},ASKF={},ASKB={},CKQ={};let CKN=0;
+const CHIPS=["Explain it more simply","Give me another example","Quiz me on this"],PINCHIPS=["What does this mean?","Why is it written this way?","Show me an example"];
+/* The AI ends each answer with "CHECK: ..." and "NEXT: a | b | c". Split those off from the text to show. */
+function parseAns(a){let check="",next=[];const keep=[];for(const l of String(a).replace(/\r/g,"").split("\n")){let m=l.match(/^\s*\**CHECK:\**\s*(.+)$/);if(m){check=m[1].trim();continue}m=l.match(/^\s*\**NEXT:\**\s*(.+)$/);if(m){next=m[1].split("|").map(x=>x.trim().replace(/^[-*\d.)\s]+/,"")).filter(x=>x&&x.length<70).slice(0,3);continue}keep.push(l)}return{text:keep.join("\n").trim(),check,next}}
+const upXp=()=>{const e=$("xpv");if(e)e.textContent="XP "+S.xp};
+function setChips(n,arr,lost){const c=$("aqc-"+n);if(!c)return;const a=(arr&&arr.length?arr:CHIPS).slice();if(lost)a.push("I'm still lost");c.innerHTML=a.map(x=>`<button onclick="askGo(${n},this.textContent)">${esc(x)}</button>`).join("")}
+function aqShow(n){const b=$("ab-"+n);if(!b)return null;b.hidden=false;
+if(!b.dataset.init){b.dataset.init=1;b.innerHTML=`<div class=am id=am-${n}></div><div class=aqc id=aqc-${n}></div><div class=af id=af-${n} hidden></div><textarea class=aqi id=aqt-${n} rows=2 spellcheck=true placeholder="Ask anything about this part. Enter sends, Shift+Enter adds a line." onkeydown="aqk(event,${n})"></textarea><button class=sec id=aqb-${n} onclick="askGo(${n})">Ask</button> <button class=x onclick="aq(${n})">Close</button><small>Tip: highlight any words or code in the lesson, then press "Ask the AI about this" to ask about that exact part.</small>`;setChips(n)}
+return b}
+function aq(n){const b=$("ab-"+n);if(!b)return;if(!b.hidden){b.hidden=true;return}aqShow(n);$("aqt-"+n).focus()}
 function aqk(e,n){if(e.key=="Enter"&&!e.shiftKey){e.preventDefault();askGo(n)}}
-async function askGo(n,pre){const t=$("aqt-"+n),bt=$("aqb-"+n),m=$("am-"+n),s=SECS[n];if(!t||!s||bt.disabled)return;const q=(pre||t.value).trim();if(!q)return;
-const h=ASKH[n]=ASKH[n]||[];t.value="";bt.disabled=true;bt.textContent="Thinking…";
-m.insertAdjacentHTML("beforeend",`<div class=aqu>${esc(q)}</div>`);const w=document.createElement("div");w.className="aqa";w.textContent="Thinking…";m.appendChild(w);
-try{const a=cut(await ai("ask",{unit:s.unit,section:s.sec,part:s.title,text:s.text,question:q,history:h.slice(-6)}));
-h.push({role:"user",text:q},{role:"assistant",text:a});w.innerHTML=body(a.split("\n"));fit(w)}
+/* Pin the exact words or code the next question is about. */
+function pin(n,f){if(!aqShow(n))return;ASKF[n]=f;const p=$("af-"+n);p.hidden=false;p.innerHTML=`<span>About: <i>${esc(f.label)}</i></span> <button class=x onclick="unpin(${n})" aria-label="Remove">×</button>`;setChips(n,f.code?["What does this code do?","Why does it print that?","What if I change it?"]:PINCHIPS);$("aqt-"+n).focus()}
+function unpin(n){delete ASKF[n];const p=$("af-"+n);if(p){p.hidden=true;p.innerHTML=""}}
+function askCode(b){const k=b.closest(".blk");if(!k||k.dataset.n==null)return;const w=b.closest(".cb"),ro=w.querySelector(".ro"),code=w.querySelector(".src").value,
+out=ro.hidden?"":[...ro.querySelectorAll("pre.po,.err .et,.err .el")].map(x=>x.textContent).join("\n").trim();
+pin(+k.dataset.n,{code:1,label:out?"this code and its result":"this code",text:"Code:\n"+code.slice(0,1500)+(out?"\nWhat it showed when run:\n"+out.slice(0,600):"")})}
+/* A short question the AI asks to test the idea it just explained. Answering it correctly earns XP. */
+function checkCard(n,q){const id=++CKN;CKQ[id]=q;return`<div class=chk id=ck${id} data-tries=0><div class=lbl>Quick check</div><p>${inl(q)}</p><textarea class=aqi id=cki${id} rows=2 placeholder="Your answer. Enter to check it." onkeydown="ckk(event,${n},${id})"></textarea><button class=sec id=ckb${id} onclick="ckGo(${n},${id})">Check my answer</button> <button class=x onclick="ckSkip(${id})">Skip</button><div class=ckr id=ckr${id}></div></div>`}
+function ckk(e,n,id){if(e.key=="Enter"&&!e.shiftKey){e.preventDefault();ckGo(n,id)}}
+function ckGo(n,id){const v=($("cki"+id)||{}).value;if(v&&v.trim())return askGo(n,v.trim(),{check:id})}
+function ckSkip(id){const c=$("ck"+id);if(c)c.remove()}
+function verdict(n,id,text){const c=$("ck"+id);if(!c||c.dataset.done)return;c.dataset.tries=(+c.dataset.tries||0)+1;const r=$("ckr"+id);
+if(/^\W*Right!/i.test(text)){c.dataset.done=1;const xp=c.dataset.tries==1?5:2;S.xp+=xp;tick();sv();upXp();$("cki"+id).disabled=true;$("ckb"+id).hidden=true;c.querySelector(".x").hidden=true;r.innerHTML=`<b>Right! +${xp} XP</b>`}
+else r.innerHTML=`Not there yet. Edit your answer and try again, or <button class=x onclick="askGo(${n},'Show me the answer to the quick check')">show me the answer</button>`}
+async function askGo(n,pre,o){o=o||{};const t=$("aqt-"+n),bt=$("aqb-"+n),m=$("am-"+n),s=SECS[n];if(!t||!s||ASKB[n])return;
+const q=(pre!=null?pre:t.value).trim();if(!q)return;const f=o.check?null:ASKF[n];
+let sent=q;if(o.check)sent="Check question: "+CKQ[o.check]+"\nMy answer: "+q;
+else if(f)sent=(f.code?"[Pointing at this code (and what happened when it ran, if shown)]\n"+f.text:`[Pointing at this exact text: "${f.text}"]`)+"\n\n"+q;
+const h=ASKH[n]=ASKH[n]||[],ckb=o.check?$("ckb"+o.check):null;ASKB[n]=1;if(pre==null)t.value="";bt.disabled=true;bt.textContent="Thinking…";if(ckb)ckb.disabled=true;if(f)unpin(n);
+m.insertAdjacentHTML("beforeend",`<div class=aqu>${f?`<div class=aqf>About: ${esc(f.label)}</div>`:""}${o.check?"My answer: ":""}${esc(q)}</div>`);
+const w=document.createElement("div");w.className="aqa";w.textContent="Thinking…";m.appendChild(w);
+try{const raw=cut(await ai("ask",{unit:s.unit,section:s.sec,part:s.title,text:s.text,question:sent,mode:o.check?"check":undefined,history:h.slice(-8)})),p=parseAns(raw);
+h.push({role:"user",text:sent},{role:"assistant",text:raw});
+w.innerHTML=body(p.text.split("\n"))+(p.check?checkCard(n,p.check):"");fit(w);setChips(n,p.next,1);if(o.check)verdict(n,o.check,p.text)}
 catch(e){w.className="aqa bad";w.textContent="Could not get an answer: "+e.message}
-bt.disabled=false;bt.textContent="Ask";w.scrollIntoView({block:"nearest",behavior:"smooth"})}
+ASKB[n]=0;bt.disabled=false;bt.textContent="Ask";if(ckb)ckb.disabled=false;w.scrollIntoView({block:"nearest",behavior:"smooth"})}
+/* Highlight words (or code in an editor) inside a lesson part and a button appears to ask about exactly that. */
+let SELN=null;
+function selUi(){const b=$("selask");if(!b)return;const hide=()=>{b.hidden=true;SELN=null},ae=document.activeElement,inTa=ae&&ae.matches&&ae.matches("textarea.src")&&ae.selectionEnd>ae.selectionStart;let text="",n=null,rect=null;
+if(inTa){text=ae.value.slice(ae.selectionStart,ae.selectionEnd);const k=ae.closest(".blk");n=k&&k.dataset.n;rect=ae.getBoundingClientRect()}
+else{const s=getSelection();if(!s||s.isCollapsed||!s.rangeCount)return hide();text=s.toString();const r=s.getRangeAt(0),c=r.commonAncestorContainer,el=c.nodeType==1?c:c.parentElement,k=el&&el.closest?el.closest(".blk"):null;if(!k)return hide();n=k.dataset.n;rect=r.getBoundingClientRect()}
+text=text.trim();if(n==null||text.length<2)return hide();
+SELN={n:+n,text};b.hidden=false;const bw=b.offsetWidth||200;b.style.left=Math.max(8,Math.min(innerWidth-bw-8,rect.left))+"px";b.style.top=(inTa?Math.max(8,rect.top-40):Math.min(innerHeight-46,rect.bottom+8))+"px"}
+function selAsk(){if(!SELN)return;const{n,text}=SELN;SELN=null;$("selask").hidden=true;try{getSelection().removeAllRanges()}catch(e){}pin(n,{label:text.replace(/\s+/g," ").slice(0,50),text:text.slice(0,600)})}
+{const b=document.createElement("button");b.id="selask";b.hidden=true;b.textContent="Ask the AI about this";b.onpointerdown=b.onmousedown=e=>e.preventDefault();b.onclick=selAsk;document.body.appendChild(b);
+for(const ev of["mouseup","keyup","touchend"])document.addEventListener(ev,()=>setTimeout(selUi,10));document.addEventListener("scroll",()=>{b.hidden=true},true)}
 try{localStorage.removeItem("pf3")}catch(e){}
 const gc=()=>{try{return JSON.parse(localStorage.getItem(PF))||{}}catch(e){return{}}};
 /* If a part was cut off inside a code block, drop that unfinished block so it cannot flip the code/text parity of the rest. */
