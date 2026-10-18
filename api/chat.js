@@ -33,6 +33,11 @@ FORMAT (strict, the app parses this)
 - Use **bold** only for new terms and built-in names. No tables, no HTML, no other markdown. Bullet lines may start with "- ".
 - All code goes in fenced blocks.
 
+QUICK CHECKS (the app turns these lines into tap-to-answer questions that award XP, so follow the shape exactly)
+After the content of each section, and after the content of each "**name**" entry, write exactly one line in this shape. It is plain text, never inside a code block, and the last line of that section or entry:
+CHECK: question ;; correct answer ;; wrong answer ;; wrong answer ;; one sentence saying why the correct answer is right
+Rules: the question tests the idea that section or entry just taught, ideally a prediction such as What does \`len([1, 2, 3])\` print? (inline code in backticks is fine). Each answer is short (under 8 words) and never contains ";;". The two wrong answers are plausible beginner mistakes. Never use "all of the above" or "none of the above". Work out any output by hand and be certain it is right; if you cannot be certain, ask a conceptual question instead. Do NOT write a CHECK line for the "## Remember" section, or for a "## " heading that contains only entries.
+
 CODE AND OUTPUT RULES (very important)
 1. A \`\`\`python block contains ONLY code that runs exactly as written when pasted into an empty file. Comments are fine.
 2. NEVER write ">>>" or "..." prompts. NEVER put program output or results inside a python block, not as bare lines and not as "# prints:" comments.
@@ -41,7 +46,7 @@ CODE AND OUTPUT RULES (very important)
 5. The output must be exactly what Python 3.12 prints, character for character. Work each one out carefully. With this many examples, accuracy matters more than quantity: prefer examples whose output you can verify by hand, and if you are not certain of an output, pick a different example. Avoid set ordering, id(), hash() of strings, and floats that do not print cleanly (one exception: 0.1 + 0.2 prints 0.30000000000000004 and may be used to teach float rounding).
 6. Keep each python block under 12 lines. Use more blocks rather than longer ones.`;
 
-const ENTRY_SPEC = `Give EVERY built-in name you are given its own mini-entry, in the order given. Each entry starts with the line "**name**" and covers: what it is in one sentence; its signature and what each argument means (including defaults); what it returns and the type of that value; TWO examples with their output (a basic one, then a variation with a different argument or type; they may share one block when short); one common mistake and how to fix it. If a name is a constant or a type rather than a function, adapt the entry sensibly. If you are given no names, leave this section out.`;
+const ENTRY_SPEC = `Give EVERY built-in name you are given its own mini-entry, in the order given. Each entry starts with the line "**name**" and covers: what it is in one sentence; its signature and what each argument means (including defaults); what it returns and the type of that value; TWO examples with their output (a basic one, then a variation with a different argument or type; they may share one block when short); one common mistake and how to fix it; then its CHECK line. If a name is a constant or a type rather than a function, adapt the entry sensibly. If you are given no names, leave this section out.`;
 
 const LESSON_PART1 = `
 
@@ -60,7 +65,7 @@ The mental model in plain words, built up step by step. At least four small exam
 ${ENTRY_SPEC}
 
 LENGTH
-About 1,300 words of prose plus the code blocks. If you are running out of room, shorten the prose, but never skip a required name and never leave a code block unfinished.`;
+About 1,300 words of prose plus the code blocks. If you are running out of room, shorten the prose, but never skip a required name or a CHECK line and never leave a code block unfinished.`;
 
 const LESSON_PART2 = `
 
@@ -82,7 +87,7 @@ Four behaviours that surprise beginners, each shown with code and output, then e
 6 to 8 one-line takeaways, each starting with "- ".
 
 LENGTH
-About 1,300 words of prose plus the code blocks. If you are running out of room, shorten the prose, but never skip a required name and never leave a code block unfinished.`;
+About 1,300 words of prose plus the code blocks. If you are running out of room, shorten the prose, but never skip a required name or a CHECK line and never leave a code block unfinished.`;
 
 // Splits the unit's built-in names into the half for part 1 and the half for part 2.
 function lessonNames(d) {
@@ -149,10 +154,21 @@ const ASK_CHECK = `
 THE LEARNER IS ANSWERING YOUR CHECK QUESTION
 Their latest message has the form "Check question: ... / My answer: ...". Judge it fairly: an answer that means the same thing is right, and tiny spelling slips or missing quotes in an otherwise correct answer do not matter. Begin your reply with exactly one of these openers: "Right!" or "Close." or "Not quite." Then, in one to three sentences, say why. If it was Right! you may end with one slightly harder CHECK line. If it was Close. or Not quite., give a hint but NOT the full answer, and do not write a CHECK line, because they will try again.`;
 
+// One quick check for one part of a lesson. Used for lessons saved before they contained CHECK lines.
+const CHECK_SYSTEM = `You write ONE multiple-choice quick check for PyQuest, a Python 3.12 course for absolute beginners. You are given one part of a lesson. Reply with exactly one line and nothing else, in this shape:
+CHECK: question ;; correct answer ;; wrong answer ;; wrong answer ;; one sentence saying why the correct answer is right
+
+Rules: the question tests the main idea of that part, ideally a prediction such as What does \`len([1, 2, 3])\` print? (inline code in backticks is fine). Use only what the part teaches. Each answer is short (under 8 words) and never contains ";;". The two wrong answers are plausible beginner mistakes. Never use "all of the above" or "none of the above". Work out any output by hand and be certain it is right; if you cannot be certain, ask a conceptual question instead.`;
+
 const TASKS = {
+  check: {
+    system: CHECK_SYSTEM, max: 1200, temp: 0.4, effort: "low",
+    user: d => `Unit: ${clip(d.unit, 120)}\nSection: ${clip(d.section, 120)}\nPart: ${clip(d.part, 120) || clip(d.section, 120)}\n\nText of that part:\n${clip(d.text, 6000)}`,
+    valid: d => typeof d.text === "string" && d.text.trim(),
+  },
   lesson: {
     system: d => LESSON_BASE + (d.part === 2 ? LESSON_PART2 : LESSON_PART1),
-    max: 5500, temp: 0.4, effort: "low",
+    max: 6500, temp: 0.4, effort: "low",
     user: lessonUser,
     valid: d => typeof d.title === "string" && d.title && typeof d.builtins === "string",
   },
