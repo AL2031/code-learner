@@ -43,7 +43,7 @@ code{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding
 .af{margin:2px 0 6px;font-size:14px}.af i{font-style:normal;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:1px 8px;overflow-wrap:anywhere}
 .am .aqf{font-size:13px;font-weight:400;opacity:.8;margin-bottom:2px;overflow-wrap:anywhere}
 .chk{margin:10px 0 4px;padding:10px 12px;border:2px dashed var(--g);border-radius:12px}.chk p{margin:0 0 6px}.chk .lbl{margin-top:0}.chk[data-done] {border-style:solid;background:#58cc0222}.ckr{margin-top:8px;font-size:14px}
-.lc .opt{padding:10px 14px;margin:6px 0}.lprog{margin:4px 0 12px;font-size:14px}.lprog:empty{display:none}.lprog button{margin:4px 0 0 6px}.lprog small{margin-top:6px}.chk.done{border-style:solid;background:#58cc0222}
+.lc .opt{padding:10px 14px;margin:6px 0}.lprog{margin:4px 0 12px;font-size:14px}.lprog:empty{display:none}.lprog button{margin:4px 0 0 6px}.lprog small{margin-top:6px}.chk.done{border-style:solid;background:#58cc0222}.chk.wait p{margin:0;opacity:.75;animation:pqw 1.1s ease-in-out infinite alternate}@keyframes pqw{from{opacity:.35}to{opacity:.9}}
 .full .lprog+.blk h3{margin-top:10px}.lprog+.blk.e{border-top:0;margin-top:0;padding-top:0}
 .cb .ask{padding:8px 14px;font-size:inherit;border-radius:14px}
 #selask{position:fixed;z-index:50;background:var(--b);border-color:#1899d6;color:#fff;padding:6px 12px;font-size:14px;border-radius:12px;box-shadow:0 4px 14px #0005}
@@ -732,14 +732,14 @@ m=l.match(/^##\s+(.*)$/);if(m){sec=m[1].trim();open("h",sec);continue}
 m=l.match(/^\s*\*\*([^*`]+)\*\*\s*:?\s*$/);if(m){open("e",m[1].trim());continue}}
 if(!b)open("p","");b.items.push(l)}
 return B}
-const SECS=[],LC={};let LCN=0,LCMSG="";
-const fmt=t=>{SECS.length=0;LCMSG="";for(const o of[ASKH,ASKF,ASKB,CKQ,LC])for(const k in o)delete o[k];const u=cur!=null&&D[cur]?D[cur].t:"",cc=lcc();
+const SECS=[],LC={};let LCN=0,LCG=0;
+const fmt=t=>{SECS.length=0;LCG++;for(const o of[ASKH,ASKF,ASKB,CKQ,LC])for(const k in o)delete o[k];const u=cur!=null&&D[cur]?D[cur].t:"",cc=lcc();
 return`<div class=lprog id=lprog></div>`+parse(t).map(b=>{const head=b.kind=="h"?`<h3>${inl(b.title)}</h3>`:b.kind=="e"?`<h4>${inl(b.title)}</h4>`:"";let ask="",dn="",card="";
 if(b.items.some(x=>x.trim())){const key=u+"|"+b.sec+"|"+b.title,c=parseLc(b.check)||parseLc(cc[key]),sk=/^remember/i.test(b.sec),n=SECS.push({unit:u,sec:b.sec,title:b.title,text:b.items.join("\n").trim(),key,ck:!!c,skip:sk})-1;dn=` data-n=${n}`;
-card=`<div id=lcw-${n}>${c?lcCard(key,c):""}</div>`;
-ask=`<div class=askrow><button class=ask onclick="aq(${n})">Confused? Ask the AI</button>${c||sk?"":` <button class=ask id=lcb-${n} onclick="lcGen(${n})">Quick check for XP</button>`}</div><div class=askbox id=ab-${n} hidden></div>`}
+card=`<div id=lcw-${n}>${c?lcCard(key,c):sk?"":`<div class="chk lc wait"><div class=lbl>Quick check</div><p>Writing a quick check…</p></div>`}</div>`;
+ask=`<div class=askrow><button class=ask onclick="aq(${n})">Confused? Ask the AI</button></div><div class=askbox id=ab-${n} hidden></div>`}
 return`<div class="blk ${b.kind}"${dn}>${head}${body(b.items)}${card}${ask}</div>`}).join("")};
-/* ---- Quick checks written into the lesson: "CHECK: question ;; correct ;; wrong ;; wrong ;; why". Tap an answer, no AI call needed. ---- */
+/* ---- Quick checks: "CHECK: question ;; correct ;; wrong ;; wrong ;; why". They are written together with the lesson and appear automatically. Tap an answer, no AI call needed. ---- */
 const lcc=()=>{try{return JSON.parse(localStorage.getItem("pq_lc"))||{}}catch(e){return{}}},slcc=m=>{try{localStorage.setItem("pq_lc",JSON.stringify(m))}catch(e){}};
 /* Parses a CHECK line into {q, opts (the correct answer is always opts[0]), why}. Returns null if it is unusable. */
 function parseLc(x){if(!x)return null;const p=String(x).replace(/^\s*\**CHECK:\**\s*/,"").split(";;").map(v=>v.trim()).filter(Boolean);if(p.length<3)return null;
@@ -752,18 +752,19 @@ if(i==0){o.done=1;b.classList.add("ok");c.classList.add("done");c.querySelectorA
 if(!S.lc[o.key]){const xp=o.tries?2:5;S.lc[o.key]=1;S.xp+=xp;tick();sv();upXp();m+=" +"+xp+" XP"}else m+=" (you already earned XP for this part)";
 r.innerHTML=`<b>${m}</b>${o.why?`<div>${inl(o.why)}</div>`:""}`;lprog()}
 else{o.tries++;b.classList.add("no");b.disabled=true;r.textContent="Not quite. Try another answer."}}
-/* The line above the lesson: progress, plus a button to add checks to lessons that were saved before checks existed. */
-function lprog(){const e=$("lprog");if(!e)return;const ids=Object.keys(LC),tot=ids.length,dn=ids.filter(i=>S.lc[LC[i].key]).length,miss=SECS.filter(s=>!s.ck&&!s.skip).length;
-e.innerHTML=(tot?`<b>Quick checks: ${dn} of ${tot} done</b> · 5 XP each when you get it first try`:"")+(miss?`${tot?" ":""}<button class=ask id=lcall onclick="lcAll()">Add quick checks to ${tot?"the other ":"all "}${miss} parts</button>`:"")+(LCMSG?`<small>${esc(LCMSG)}</small>`:"")}
-/* Asks the AI for one check for one part. Returns true when a card was added. */
-async function lcGen(n,quiet){const s=SECS[n],b=$("lcb-"+n),w=$("lcw-"+n);if(!s||s.ck||s.busy||!w)return false;s.busy=1;if(b){b.disabled=true;b.textContent="Writing a check…"}let ok=false;
-try{const t=await ai("check",{unit:s.unit,section:s.sec,part:s.title,text:s.text}),c=parseLc(String(t).split("\n").find(l=>l.includes(";;")));if(!c)throw new Error("The AI's check was not usable. Please try again.");
-const m=lcc();m[s.key]=c.raw;slcc(m);s.ck=true;w.innerHTML=lcCard(s.key,c);if(b)b.remove();ok=true}
-catch(e){if(b){b.disabled=false;b.textContent="Quick check for XP"}if(!quiet)LCMSG="Could not add a check: "+e.message}
-s.busy=0;lprog();return ok}
-async function lcAll(){const q=SECS.map((s,i)=>i).filter(i=>!SECS[i].ck&&!SECS[i].skip),tot=q.length,btn=$("lcall");let done=0,fail=0;LCMSG="";if(btn)btn.disabled=true;
-await Promise.all([1,2,3].map(async()=>{while(q.length){const n=q.shift(),ok=await lcGen(n,true);ok?done++:fail++;const x=$("lcall");if(x){x.disabled=true;x.textContent="Adding quick checks… "+(done+fail)+"/"+tot}}}));
-LCMSG=fail?fail+" check(s) could not be added. The tutor may be busy, so press the button again.":"";lprog()}
+/* The line above the lesson: how many checks are done. */
+function lprog(){const e=$("lprog");if(!e)return;const ids=Object.keys(LC),dn=ids.filter(i=>S.lc[LC[i].key]).length,wait=SECS.filter(s=>!s.ck&&!s.skip).length,tot=ids.length+wait;
+e.innerHTML=tot?`<b>Quick checks: ${dn} of ${tot} done</b> · 5 XP each when you get it first try${SECS.some(s=>s.busy)?" · writing the rest…":""}`:""}
+const lcWait=(n,fail)=>{const w=$("lcw-"+n);if(w)w.innerHTML=`<div class="chk lc wait"><div class=lbl>Quick check</div>${fail?`<p>Could not write this one. <button class=x onclick="lcFill()">Try again</button></p>`:"<p>Writing a quick check…</p>"}</div>`};
+/* Writes a check for every part of the open lesson that has none (a lesson saved before checks existed, or a CHECK line the AI skipped or garbled).
+   One batched request, tried twice, and every finished check is saved so it is never written again. */
+async function lcFill(){const g=LCG,todo=SECS.map((s,i)=>i).filter(i=>!SECS[i].ck&&!SECS[i].skip&&!SECS[i].busy);if(!todo.length)return;
+for(const n of todo){SECS[n].busy=1;lcWait(n)}lprog();
+for(let t=0;t<2;t++){const pend=todo.filter(n=>!SECS[n].ck);if(!pend.length)break;if(t)await new Promise(r=>setTimeout(r,2500));if(g!=LCG)return;
+try{const txt=await ai("checks",{unit:SECS[pend[0]].unit,parts:pend.map(n=>({i:n,section:SECS[n].sec,title:SECS[n].title,text:SECS[n].text}))});if(g!=LCG)return;const m=lcc();
+for(const l of String(txt).split("\n")){const k=l.match(/^\s*\**CHECK\s*(\d+)\s*:\**\s*(.+)$/);if(!k)continue;const n=+k[1],s=SECS[n],c=parseLc(k[2]);if(!s||s.ck||!c||!pend.includes(n))continue;m[s.key]=c.raw;s.ck=true;$("lcw-"+n).innerHTML=lcCard(s.key,c)}slcc(m)}catch(e){}
+lprog()}
+if(g!=LCG)return;for(const n of todo){SECS[n].busy=0;if(!SECS[n].ck)lcWait(n,1)}lprog()}
 /* ---- Ask the AI about one block of the lesson. ----
    Precision: the learner can pin the exact words or code they mean (select text, or press "Ask about this code").
    Engagement: every answer comes with clickable follow-up questions and usually a quick check worth XP. */
@@ -824,7 +825,7 @@ const gr=t=>{t.style.height="auto";t.style.height=t.scrollHeight+4+"px"};
 const rs=b=>{const w=b.closest(".cb"),t=w.querySelector(".src");t.value=t.defaultValue;gr(t);w.querySelector(".ro").hidden=true};
 const fit=el=>{tabs();el.querySelectorAll("textarea.src").forEach(gr)};
 async function rb(b){const w=b.closest(".cb"),o=w.querySelector(".ro");o.hidden=false;o.innerHTML="<small>Running…</small>";o.innerHTML=view(await run(w.querySelector(".src").value))}
-async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);fit(el);lprog();return}el.innerHTML="<small>Writing your full lesson… this takes about 30 to 60 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x);fit(el);lprog()}catch(e){el.textContent="Could not load the lesson: "+e.message}}
+async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);fit(el);lprog();lcFill();return}el.innerHTML="<small>Writing your full lesson… this takes about 30 to 60 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x);fit(el);lprog();lcFill()}catch(e){el.textContent="Could not load the lesson: "+e.message}}
 async function bk(){const o=$("bs"),w=ms=>new Promise(r=>setTimeout(r,ms));let n=0,bad=0;for(const t of D){n++;o.textContent="Building "+n+"/"+D.length+": "+t.t;if(gc()[t.t])continue;let ok=0;for(let a=0;a<3&&!ok;a++){try{const x=await fl(t),m=gc();m[t.t]=x;localStorage.setItem(PF,JSON.stringify(m));ok=1}catch(e){if(/Set the API/.test(e.message)){o.textContent=e.message;return}await w(8000)}}if(!ok)bad++;await w(1500)}o.textContent=bad?"Done, but "+bad+" lesson(s) failed. Press the button again to retry them.":"All full lessons are ready (saved in this browser)."}
 home();
 </script></body></html>
