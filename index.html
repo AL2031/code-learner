@@ -1,0 +1,698 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PyQuest – Learn Python</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+:root{--bg:#fff;--fg:#1f2937;--card:#f3f4f6;--g:#58cc02;--gd:#46a302;--r:#ff4b4b;--b:#1cb0f6;--line:#e5e7eb}
+@media(prefers-color-scheme:dark){:root{--bg:#131f24;--fg:#e5eef2;--card:#1f2c33;--line:#37464f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+#a{max-width:660px;margin:0 auto;padding:16px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:18px;font-weight:700}
+.bar{flex:1;height:14px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--g);transition:width .3s}
+button{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--fg);border-radius:14px;padding:10px 16px;font-weight:700}
+button:disabled{opacity:.6}.card,.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:14px 16px}
+.opt.sel{border-color:var(--b)}.opt.ok{border-color:var(--g);background:#58cc0233}.opt.no{border-color:var(--r);background:#ff4b4b33}
+.main{width:100%;margin-top:14px;background:var(--g);border-color:var(--gd);color:#fff;text-transform:uppercase;letter-spacing:.5px}
+.sec{background:var(--b);border-color:#1899d6;color:#fff}.x{padding:4px 10px}
+textarea{width:100%;min-height:150px;background:#0f172a;color:#e2e8f0;border:2px solid var(--line);border-radius:12px;padding:12px;font:14px/1.5 ui-monospace,monospace;tab-size:4}
+pre{background:#0f172a;color:#a7f3d0;padding:12px;border-radius:12px;white-space:pre-wrap;margin:8px 0}
+.msg{padding:12px 14px;border-radius:12px;margin-top:12px;font-weight:600;white-space:pre-wrap}.msg.ok{background:#58cc0233}.msg.no{background:#ff4b4b33}
+.key{margin-top:24px;padding:14px;border:2px dashed var(--line);border-radius:14px}.key input{width:68%;padding:8px;border-radius:8px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
+p{white-space:pre-wrap}small{display:block;opacity:.75;margin-top:6px}.tag{float:right;font-size:13px;opacity:.8}.chip{display:inline-block;background:var(--card);border-radius:8px;padding:0 8px;margin:2px;font:13px ui-monospace,monospace}
+.full{margin:10px 0;padding:6px 14px;border-left:4px solid var(--b);background:var(--card);border-radius:8px}.full h3{margin:14px 0 4px}
+.lbl{font:700 12px/1 system-ui,sans-serif;letter-spacing:.6px;text-transform:uppercase;opacity:.7;margin:12px 0 4px}
+.cb{margin:14px 0}.cb pre{margin:4px 0}.cb .ro{margin-top:8px}
+.exp{background:var(--card);color:var(--fg);border:2px dashed var(--line)}.po{border-left:4px solid var(--g)}
+.err{margin-top:10px;border:2px solid var(--r);border-radius:12px;padding:12px 14px;background:#ff4b4b1a}
+.err .eh{font-weight:700;color:var(--r);display:flex;gap:8px;align-items:center}
+.err .ln{background:var(--r);color:#fff;border-radius:8px;padding:0 8px;font-size:13px}
+.err .et{font:700 15px/1.4 ui-monospace,monospace;margin:6px 0;word-break:break-word}
+.err .el{background:#0f172a;color:#fecaca;margin:6px 0}.err .el b{color:#94a3b8;font-weight:400;margin-right:14px}
+.err .ex{margin:6px 0}.err details{margin-top:6px;font-size:13px}.err summary{cursor:pointer;opacity:.8}.err details pre{font-size:12px;color:#cbd5e1}
+</style></head><body><div id="a"></div><script>
+const D=[
+{t:`Variables & Types`,b:`print type int float str bool None True False`,n:`A variable is a name that holds a value: age = 12. Core types: int (5), float (2.5), str ("hi"), bool (True / False) and None (no value). print() shows values; type() tells you what you have.`,
+ex:`name = "Ada"
+age = 12
+print(name, age, type(age))
+print(type(2.5), type(True), type(None))`,
+q:[[`Which line creates a variable?`,[`print(x)`,`x = 5`,`5 = x`],1,`= assigns; the name goes on the left.`],[`type(2.5) is…`,[`int`,`float`,`str`],1,`Numbers with a decimal point are floats.`]],
+x:{p:`Create variables city (a str) and year (an int). Print them on one line separated by a space, then print type(year).`,s:``,h:`print(city, year) puts a space between values.`,t:`assert isinstance(city,str) and isinstance(year,int),"city must be a str and year an int"
+L=OUT.strip().splitlines()
+assert L[0]==city+" "+str(year),"first line must be: city year"
+assert "int" in L[1],"print type(year) on the second line"`},
+d:{p:`This should print 15 but prints 105. Fix it.`,s:`a = "10"
+b = "5"
+print(a + b)`,h:`Quotes make text; convert with int() or drop the quotes.`,t:`assert OUT.strip()=="15","it must print 15"`}},
+{t:`Numbers & Math`,b:`abs round divmod pow min max sum complex`,n:`+ - * / ** do math; // is whole-number division and % the remainder. Built-ins: abs, round(x, digits), divmod(a, b), pow(a, b, mod), min, max, sum, complex.`,
+ex:`print(7 // 2, 7 % 2, 2 ** 5)
+print(abs(-3), round(3.14159, 2), divmod(17, 5))
+print(pow(2, 10, 1000), min(4, 2, 9), max([1, 5]), sum(range(5)))
+print(complex(1, 2) * 2)`,
+q:[[`What does divmod(17, 5) return?`,[`(3, 2)`,`(2, 3)`,`3.4`],0,`17 = 5*3 + 2, so (quotient, remainder).`],[`7 // 2 equals…`,[`3.5`,`3`,`4`],1,`// drops the fraction.`]],
+x:{p:`Given vals below, print the largest absolute value rounded to 2 decimals, then print divmod(100, 7).`,s:`vals = [3.14159, -2.71828, 1.41421]
+`,h:`max(abs(v) for v in vals), then round(..., 2).`,t:`assert OUT.strip().splitlines()==["3.14","(14, 2)"],"expected 3.14 then (14, 2)"`},
+d:{p:`This should print the average (4) but prints the sum. Fix it.`,s:`nums = [2, 4, 6]
+print(sum(nums))`,h:`Divide by len(nums).`,t:`assert OUT.strip() in ("4","4.0"),"the average of 2, 4, 6 is 4"`}},
+{t:`Text & Number Bases`,b:`len repr format ord chr ascii bin hex oct`,n:`Strings are sequences: s[0], s[-1], s[1:4], s[::-1]. Methods: upper, split, join, replace, strip. len counts, repr shows exact text, format() / f-strings pretty-print, ord/chr convert characters and codes, bin/hex/oct show other bases, ascii escapes non-ASCII.`,
+ex:`s = "Python"
+print(len(s), s[0], s[-1], s[1:4], s[::-1])
+print(repr("hi"), ascii("é"), format(3.14159, ".2f"))
+print(ord("A"), chr(97), bin(10), hex(255), oct(8))
+print(", ".join(["a", "b"]).upper())`,
+q:[[`What is "python"[1:4]?`,[`pyt`,`yth`,`ytho`],1,`Slices start at 1 and stop before 4.`],[`chr(ord("a") + 1) gives…`,[`b`,`c`,`98`],0,`ord gives the code, +1 moves one letter, chr converts back.`]],
+x:{p:`Given word = "Python", print it reversed, then print len(word) written in hex (use hex()).`,s:`word = "Python"
+`,h:`word[::-1] and hex(len(word)).`,t:`assert OUT.strip().splitlines()==["nohtyP","0x6"],"expected nohtyP then 0x6"`},
+d:{p:`This should print the letter after "c" but prints a number. Fix it.`,s:`print(ord("c") + 1)`,h:`chr() turns a code back into a letter.`,t:`assert OUT.strip()=="d","it must print d"`}},
+{t:`Logic & Loops`,b:`all any range enumerate zip reversed sorted`,n:`if/elif/else choose a path; and, or, not combine conditions. Falsy values: 0, "", [], None. for loops walk sequences; range(n) gives 0..n-1; enumerate adds an index, zip pairs lists, reversed flips, sorted returns a new sorted list; all() needs every item truthy, any() at least one. break exits a loop, continue skips an iteration.`,
+ex:`for i, c in enumerate("abc"):
+    print(i, c)
+for a, b in zip([1, 2], "xy"):
+    print(a, b)
+print(all([1, 2, 0]), any([0, "", 3]))
+print(sorted([3, 1, 2], reverse=True), list(reversed(range(3))))`,
+q:[[`What numbers does range(3) produce?`,[`1, 2, 3`,`0, 1, 2`,`0, 1, 2, 3`],1,`It starts at 0 and stops before 3.`],[`any([0, "", None]) returns…`,[`True`,`False`,`None`],1,`Every item is falsy, so any() is False.`]],
+x:{p:`Loop over range(1, 20): skip multiples of 3 with continue, stop with break at the first number above 10, and print the rest, one per line.`,s:``,h:`Check n % 3 == 0 first, then n > 10.`,t:`assert OUT.split()==["1","2","4","5","7","8","10"],"expected 1 2 4 5 7 8 10"`},
+d:{p:`This should print 1 to 5 but stops at 4. Fix it.`,s:`for i in range(1, 5):
+    print(i)`,h:`range stops before its end value.`,t:`assert OUT.split()==list("12345"),"print 1 through 5"`}},
+{t:`Collections`,b:`list tuple set frozenset dict slice`,n:`list [1, 2] is ordered and changeable; tuple (1, 2) is fixed; set {1, 2} keeps unique items; frozenset is an immutable set; dict {"a": 1} maps keys to values. slice(1, 4) is a reusable slice. Handy: append, len, in, get, keys, items.`,
+ex:`xs = list("abca")
+print(xs, tuple(xs), set(xs), frozenset(xs))
+d = dict(zip(["a", "b"], [1, 2]))
+d["c"] = 3
+print(d, d.get("z", 0), list(d.items()))
+print([0, 1, 2, 3, 4][slice(1, 4)])`,
+q:[[`Which of these is immutable?`,[`list`,`tuple`,`dict`],1,`Tuples cannot change after creation.`],[`len(set([1, 1, 2])) is…`,[`3`,`2`,`1`],1,`A set keeps only unique items: {1, 2}.`]],
+x:{p:`Given nums, print how many unique values there are, then print a dict counting each value, built with a loop. Expected second line: {1: 1, 2: 2, 3: 3}`,s:`nums = [1, 2, 2, 3, 3, 3]
+`,h:`counts[n] = counts.get(n, 0) + 1`,t:`assert OUT.strip().splitlines()==["3","{1: 1, 2: 2, 3: 3}"],"expected 3 then {1: 1, 2: 2, 3: 3}"`},
+d:{p:`This should print 36 but raises KeyError. Fix the lookup.`,s:`ages = {"Ada": 36}
+print(ages["ada"])`,h:`Keys are case-sensitive.`,t:`assert OUT.strip()=="36","it must print 36"`}},
+{t:`Functions`,b:`callable map filter iter next`,n:`def name(params): ... return value defines reusable code. Defaults: def f(x, y=2). lambda makes tiny functions. map applies a function to every item, filter keeps items that pass, iter/next step through an iterable by hand (next(it, default) avoids errors), callable() tells whether something can be called.`,
+ex:`def greet(name, punct="!"):
+    return "Hi " + name + punct
+print(greet("Bo"), greet("Al", "?"))
+print(list(map(lambda x: x * 2, [1, 2, 3])))
+print(list(filter(None, [0, 1, "", "a"])))
+it = iter([10, 20])
+print(next(it), next(it), next(it, "done"), callable(greet))`,
+q:[[`Which keyword sends a value back?`,[`return`,`give`,`print`],0,`return hands a value to the caller.`],[`next(it, "done") on an empty iterator gives…`,[`an error`,`"done"`,`None`],1,`The default is returned instead of raising StopIteration.`]],
+x:{p:`Write power(base, exp=2) returning base ** exp. Print power(5), then power(2, 10).`,s:`def power(base, exp=2):
+    
+`,h:`return base ** exp`,t:`assert callable(power),"define power"
+assert OUT.split()==["25","1024"],"expected 25 then 1024"`},
+d:{p:`double() should return twice its input but prints None. Fix it.`,s:`def double(n):
+    n * 2
+print(double(4))`,h:`A function needs return.`,t:`assert OUT.strip()=="8","print(double(4)) must show 8"`}},
+{t:`Errors & Exceptions`,b:`ValueError TypeError ZeroDivisionError KeyError IndexError AssertionError Exception`,n:`Errors are exceptions with names: ValueError (right type, bad value), TypeError (wrong type), ZeroDivisionError, KeyError (missing dict key), IndexError (bad list index), AssertionError (failed assert). try/except catches them; finally always runs; raise throws your own. Catch specific errors, not everything.`,
+ex:`for f in (lambda: int("x"), lambda: 1 + "a", lambda: 1 / 0, lambda: {}["k"], lambda: [][0]):
+    try:
+        f()
+    except Exception as e:
+        print(type(e).__name__, "-", e)
+try:
+    assert 1 == 2, "math broke"
+except AssertionError as e:
+    print("caught", e)`,
+q:[[`Which block always runs?`,[`except`,`else`,`finally`],2,`finally runs whether or not an error happened.`],[`int("abc") raises…`,[`TypeError`,`ValueError`,`KeyError`],1,`The type is right (str) but the value is not a number.`]],
+x:{p:`Write safe_int(text) returning int(text), or None if text is not a valid number. Print safe_int("42") and safe_int("abc").`,s:``,h:`Wrap int(text) in try and catch ValueError.`,t:`assert OUT.split()==["42","None"],"expected 42 then None"`},
+d:{p:`This crashes with ZeroDivisionError. Make average([]) return 0 instead.`,s:`def average(xs):
+    return sum(xs) / len(xs)
+print(average([]))`,h:`Check for an empty list, or use try/except.`,t:`assert OUT.strip() in ("0","0.0"),"an empty list should give 0"`}},
+{t:`Objects & Introspection`,b:`isinstance issubclass getattr setattr hasattr delattr dir vars property classmethod staticmethod super object id hash`,n:`A class bundles data and behavior; __init__ sets up each object and self is that object. Subclasses inherit; super() reaches the parent. isinstance/issubclass test types; getattr/setattr/hasattr/delattr use attribute names; dir and vars list them; id and hash identify; property makes computed attributes; classmethod/staticmethod bind to the class; object is the root of every class.`,
+ex:`class Animal:
+    def __init__(self, name):
+        self.name = name
+    @property
+    def shout(self):
+        return self.name.upper()
+class Dog(Animal):
+    def __init__(self, name):
+        super().__init__(name)
+        self.tricks = 0
+d = Dog("rex")
+print(d.shout, isinstance(d, Animal), issubclass(Dog, object))
+setattr(d, "tricks", 3)
+print(getattr(d, "tricks"), hasattr(d, "age"), vars(d))
+delattr(d, "tricks")
+print("tricks" in dir(d), id(d) == id(d), hash("a") == hash("a"))`,
+q:[[`What is self?`,[`the class`,`the current object`,`a loop keyword`],1,`self is the object the method was called on.`],[`getattr(obj, "x", None) when x is missing…`,[`raises an error`,`returns None`,`creates x`],1,`The third argument is the default.`]],
+x:{p:`Create class Counter starting at count 0 with a method add() that adds 1, and a @property doubled returning count * 2. Make one, call add() three times, print count then doubled.`,s:`class Counter:
+    
+`,h:`__init__ sets self.count = 0.`,t:`assert OUT.split()==["3","6"],"expected 3 then 6"`},
+d:{p:`This should print 1 but raises AttributeError. Fix the class.`,s:`class Box:
+    def __init__(self):
+        count = 1
+print(Box().count)`,h:`Store the value on self.`,t:`assert OUT.strip()=="1","it must print 1"`}},
+{t:`Bytes & Raw Data`,b:`bytes bytearray memoryview`,n:`Text is str; raw data is bytes. bytes is an immutable sequence of ints 0-255 (b"abc"); bytearray is the changeable version; memoryview looks at the same memory without copying. Convert with text.encode("utf-8") and data.decode().`,
+ex:`raw = "hi".encode()
+print(raw, list(raw), raw.decode())
+ba = bytearray(b"abc")
+ba[0] = 65
+print(ba, bytes(ba))
+mv = memoryview(ba)
+mv[1] = 66
+print(ba, mv[2], mv.tobytes())`,
+q:[[`Which can you modify in place?`,[`bytes`,`bytearray`,`both`],1,`bytes is immutable; bytearray is mutable.`],[`list(b"AB") gives…`,[`["A", "B"]`,`[65, 66]`,`b"AB"`],1,`Iterating bytes yields integers.`]],
+x:{p:`Encode the text "h" + chr(233) + "llo" to UTF-8 and print its length. Then put those bytes in a bytearray, set the first byte to 72 (an H) and print the result decoded back to text.`,s:`text = "h" + chr(233) + "llo"
+`,h:`len(text.encode()), then ba[0] = 72 and bytes(ba).decode().`,t:`assert OUT.strip().splitlines()==["6","H"+chr(233)+"llo"],"expected 6 then H + chr(233) + llo"`},
+d:{p:`This raises TypeError. Make it print bytearray(b'Abc').`,s:`data = bytes(b"abc")
+data[0] = 65
+print(data)`,h:`bytes cannot change; use bytearray.`,t:`assert OUT.strip()=="bytearray(b'Abc')","expected bytearray(b'Abc')"`}},
+{t:`Code as Data & Namespaces`,b:`eval exec compile globals locals __import__`,n:`eval(expr) evaluates one expression and returns it; exec(code) runs statements; compile() turns source text into a code object for either. Both accept a dict as the namespace. globals() and locals() show the current variables; __import__("math") imports by name. Never eval untrusted text!`,
+ex:`env = {"x": 2}
+print(eval("x * 21", env))
+exec("y = x + 1", env)
+print(env["y"])
+co = compile("x + 100", "<s>", "eval")
+print(eval(co, env))
+def f(a):
+    b = 1
+    return sorted(locals())
+print(f(0), __import__("math").floor(2.7), "f" in globals())`,
+q:[[`Which one runs statements like y = 1?`,[`eval`,`exec`,`both`],1,`eval only handles a single expression.`],[`Inside a function, locals() lists…`,[`its own local variables`,`only built-ins`,`every module`],0,`It is the function's local namespace.`]],
+x:{p:`Create a dict named env. Use exec on the string "total = 3 * 14" with env, print env["total"], then print eval("total + 1", env).`,s:``,h:`exec("total = 3 * 14", env) fills env.`,t:`assert OUT.split()==["42","43"],"expected 42 then 43"`},
+d:{p:`This raises SyntaxError because eval cannot run a statement. Make it print 6.`,s:`print(eval("x = 6"))`,h:`Use exec for statements, or eval just "6".`,t:`assert OUT.strip()=="6","it must print 6"`}},
+{t:`Files & Input`,b:`open input`,n:`open(name, mode) returns a file; use with so it closes itself. Modes: r read, w write (erases), a append. input(prompt) reads one typed line (here we feed it with sys.stdin = io.StringIO(...) because the browser has no keyboard stream). Files live in a temporary in-browser disk.`,
+ex:`with open("n.txt", "w") as f:
+    f.write("a" + chr(10) + "b" + chr(10))
+with open("n.txt") as f:
+    print([line.strip() for line in f])
+with open("n.txt", "a") as f:
+    f.write("c")
+print(open("n.txt").read().split())
+import io, sys
+sys.stdin = io.StringIO("Ada" + chr(10))
+print("Hi", input("name? "))`,
+q:[[`Which open() mode erases the file first?`,[`r`,`w`,`a`],1,`w truncates; a appends.`],[`Why use "with open(...)"?`,[`It closes the file automatically`,`It makes it faster`,`It encrypts it`],0,`The file is closed even if an error happens.`]],
+x:{p:`Write the lines one, two and three (one per line) to data.txt, read the file back and print how many lines it has.`,s:``,h:`Open with "w", then reopen and use readlines() or iterate.`,t:`assert OUT.strip()=="3","expected 3"`},
+d:{p:`This crashes because the file is opened for writing. Make it print hi.`,s:`with open("d.txt", "w") as f:
+    f.write("hi")
+with open("d.txt", "w") as f:
+    print(f.read())`,h:`The second open should be for reading ("r").`,t:`assert OUT.strip()=="hi","it must print hi"`}},
+{t:`Async Iteration`,b:`aiter anext`,n:`An async generator (async def with yield) produces values you await. aiter(x) is the async twin of iter(x), and await anext(it) is the twin of next(it); anext(it, default) returns the default instead of raising StopAsyncIteration. They must be awaited. Here top-level await works.`,
+ex:`async def count():
+    for i in range(3):
+        yield i
+it = aiter(count())
+print(await anext(it), await anext(it))
+print(await anext(it), await anext(it, "done"))`,
+q:[[`aiter() is the async version of…`,[`iter()`,`input()`,`range()`],0,`It gets an async iterator from an async iterable.`],[`What does await anext(it, "done") return when exhausted?`,[`"done"`,`an error`,`None`],0,`The default replaces StopAsyncIteration.`]],
+x:{p:`Write async generator letters() yielding "a", "b", "c". Using aiter and anext (default None) in a while loop, print each letter on its own line.`,s:``,h:`while (v := await anext(it, None)) is not None: ...`,t:`assert OUT.split()==["a","b","c"],"expected a, b, c on separate lines"`},
+d:{p:`This prints a strange object instead of 1. Fix it.`,s:`async def g():
+    yield 1
+it = aiter(g())
+print(anext(it))`,h:`anext returns an awaitable; await it.`,t:`assert OUT.strip()=="1","it must print 1"`}},
+{t:`Special Values & Interpreter`,b:`Ellipsis NotImplemented breakpoint help exit quit copyright credits license`,n:`Ellipsis (written ...) is a placeholder constant. NotImplemented, returned from methods like __eq__, tells Python "I don't know that type, try the other side". breakpoint() opens the debugger (disabled here with PYTHONBREAKPOINT=0). exit() and quit() raise SystemExit. help(), copyright, credits and license are interactive helpers added by the interpreter.`,
+ex:`import builtins as B, os
+print(Ellipsis, ..., [1, ...][1] is Ellipsis)
+class V:
+    def __eq__(self, o): return NotImplemented
+print(V() == 1)
+os.environ["PYTHONBREAKPOINT"] = "0"
+breakpoint()
+try:
+    exit()
+except (SystemExit, NameError) as e:
+    print(type(e).__name__)
+print([hasattr(B, n) for n in ("help", "quit", "copyright", "credits", "license")])`,
+q:[[`What does __eq__ returning NotImplemented do?`,[`Raises an error`,`Lets Python try the other operand`,`Returns None`],1,`Python then tries the reflected operation, then falls back to identity.`],[`What is ... in Python?`,[`A syntax error`,`The Ellipsis constant`,`An empty string`],1,`It is a real value, often used as a placeholder.`]],
+x:{p:`Write class Money with an amount. Its __eq__ must return NotImplemented when other is not a Money, otherwise compare amounts. Print Money(5) == Money(5), then Money(5) == 5.`,s:``,h:`if not isinstance(other, Money): return NotImplemented`,t:`assert OUT.split()==["True","False"],"expected True then False"`},
+d:{p:`This function has no body, which is a syntax error. Use the Ellipsis placeholder so it prints ok.`,s:`def todo():
+print("ok")`,h:`def todo(): ... is a valid empty body.`,t:`assert OUT.strip()=="ok","it must print ok"`}},
+{t:`Exceptions I: Core Hierarchy`,b:`BaseException ArithmeticError OverflowError FloatingPointError LookupError AttributeError NameError UnboundLocalError StopIteration StopAsyncIteration NotImplementedError RecursionError RuntimeError SystemError MemoryError BufferError ReferenceError`,n:`Every exception inherits from BaseException; the ones you normally catch inherit from Exception. ArithmeticError: ZeroDivisionError, OverflowError (result too big), FloatingPointError. LookupError: KeyError, IndexError. AttributeError (no such attribute). NameError and its child UnboundLocalError (local used before assignment). StopIteration / StopAsyncIteration (iterator finished). NotImplementedError (subclass must override). RecursionError (too deep). RuntimeError (generic), SystemError (interpreter bug), MemoryError, BufferError, ReferenceError (dead weak reference). Class.__mro__ lists the parents.`,
+ex:`for f in (lambda: 2.0 ** 10000, lambda: None.x, lambda: nope, lambda: next(iter([])), lambda: [].pop(), lambda: {}[1]):
+    try:
+        f()
+    except Exception as e:
+        print(type(e).__name__)
+print([c.__name__ for c in KeyError.__mro__])`,
+q:[[`ZeroDivisionError inherits from…`,[`LookupError`,`ArithmeticError`,`OSError`],1,`Arithmetic problems share ArithmeticError.`],[`KeyError and IndexError share which parent?`,[`LookupError`,`ValueError`,`TypeError`],0,`Both are failed lookups.`]],
+x:{p:`Print the class names in KeyError.__mro__ joined by " > ". Expected: KeyError > LookupError > Exception > BaseException > object`,s:``,h:`" > ".join(c.__name__ for c in KeyError.__mro__)`,t:`assert OUT.strip()=="KeyError > LookupError > Exception > BaseException > object","expected the full KeyError chain"`},
+d:{p:`This raises UnboundLocalError. Make it print 1.`,s:`n = 0
+def bump():
+    n += 1
+bump()
+print(n)`,h:`Declare global n inside bump().`,t:`assert OUT.strip()=="1","it must print 1"`}},
+{t:`Exceptions II: Files, OS & Imports`,b:`OSError EnvironmentError IOError EOFError ImportError ModuleNotFoundError FileNotFoundError FileExistsError IsADirectoryError NotADirectoryError PermissionError TimeoutError BlockingIOError ChildProcessError ConnectionError BrokenPipeError ConnectionAbortedError ConnectionRefusedError ConnectionResetError InterruptedError ProcessLookupError`,n:`OSError covers failures talking to the system; IOError and EnvironmentError are just other names for it. Children: FileNotFoundError, FileExistsError, IsADirectoryError, NotADirectoryError, PermissionError, TimeoutError, BlockingIOError, InterruptedError, ChildProcessError, ProcessLookupError, and ConnectionError with BrokenPipeError, ConnectionAbortedError, ConnectionRefusedError, ConnectionResetError. EOFError means input() hit the end. ImportError means an import failed; its child ModuleNotFoundError means the module does not exist.`,
+ex:`for f in (lambda: open("nope.txt"), lambda: __import__("nope_mod"), lambda: input()):
+    try:
+        f()
+    except Exception as e:
+        print(type(e).__name__)
+print(IOError is OSError, EnvironmentError is OSError)
+print([c.__name__ for c in ConnectionResetError.__mro__])`,
+q:[[`FileNotFoundError inherits from…`,[`OSError`,`ImportError`,`LookupError`],0,`File problems are OSErrors.`],[`import no_such_module raises…`,[`ModuleNotFoundError`,`FileNotFoundError`,`NameError`],0,`It is a child of ImportError.`]],
+x:{p:`Write read_or_none(path) that returns the file's text, or None if the file does not exist. Print read_or_none("missing.txt").`,s:``,h:`Catch FileNotFoundError around open().`,t:`assert OUT.strip()=="None","expected None"`},
+d:{p:`This should print no file but crashes. Fix the except.`,s:`try:
+    open("nope.txt")
+except ImportError:
+    print("no file")`,h:`Which exception does a missing file raise?`,t:`assert OUT.strip()=="no file","it must print no file"`}},
+{t:`Exceptions III: Text, Syntax, Control & Warnings`,b:`UnicodeError UnicodeDecodeError UnicodeEncodeError UnicodeTranslateError SyntaxError IndentationError TabError SystemExit KeyboardInterrupt GeneratorExit BaseExceptionGroup ExceptionGroup Warning UserWarning DeprecationWarning PendingDeprecationWarning SyntaxWarning RuntimeWarning FutureWarning ImportWarning UnicodeWarning BytesWarning ResourceWarning EncodingWarning`,n:`UnicodeError (a ValueError) has UnicodeDecodeError, UnicodeEncodeError and UnicodeTranslateError. SyntaxError has IndentationError, which has TabError. SystemExit, KeyboardInterrupt and GeneratorExit inherit from BaseException only, so except Exception does NOT catch them. ExceptionGroup / BaseExceptionGroup bundle several errors and are handled with except*. Warning has children UserWarning, DeprecationWarning, PendingDeprecationWarning, SyntaxWarning, RuntimeWarning, FutureWarning, ImportWarning, UnicodeWarning, BytesWarning, ResourceWarning and EncodingWarning; raise them with warnings.warn.`,
+ex:`for f in (lambda: bytes([255]).decode(), lambda: "é".encode("ascii"), lambda: compile("1 +", "s", "eval"), lambda: compile("if 1:" + chr(10) + "x=1", "s", "exec")):
+    try:
+        f()
+    except Exception as e:
+        print(type(e).__name__)
+import warnings
+with warnings.catch_warnings(record=True) as w:
+    warnings.simplefilter("always")
+    warnings.warn("old", DeprecationWarning)
+    print(w[0].category.__name__)
+try:
+    raise ExceptionGroup("many", [ValueError(1), TypeError(2)])
+except* ValueError as g:
+    print(type(g).__name__, g.exceptions)
+except* TypeError:
+    print("type")`,
+q:[[`Which is NOT caught by except Exception?`,[`ValueError`,`KeyboardInterrupt`,`KeyError`],1,`KeyboardInterrupt inherits straight from BaseException.`],[`UnicodeDecodeError is a subclass of…`,[`UnicodeError (and ValueError)`,`OSError`,`SyntaxError`],0,`Unicode problems are ValueErrors.`]],
+x:{p:`Catch the error from compile("1 +", "src", "eval") and print its class name, then catch the error from bytes([255]).decode() and print its class name.`,s:``,h:`Use two try/except blocks and print(type(e).__name__).`,t:`assert OUT.split()==["SyntaxError","UnicodeDecodeError"],"expected SyntaxError then UnicodeDecodeError"`},
+d:{p:`This should print bye but SystemExit escapes. Fix the except.`,s:`try:
+    raise SystemExit
+except Exception:
+    print("bye")`,h:`SystemExit is a BaseException, not an Exception.`,t:`assert OUT.strip()=="bye","it must print bye"`}},
+{t:`Deep Dive: Numbers, Floats & Conversions`,b:`int float str bool complex`,n:`int has unlimited size (2 ** 100 is fine). float is a 64-bit binary fraction, so most decimals are stored approximately: 0.1 + 0.2 is 0.30000000000000004, so never compare floats with ==; use math.isclose(a, b) or round. float("inf") and float("nan") exist, and nan != nan. int(3.9) cuts toward zero (int(-3.9) is -3); round(2.5) is 2 because ties go to the even number; // floors toward minus infinity (-7 // 2 is -4) and % takes the sign of the divisor. int("42"), int("ff", 16), float("1e3") and str(3.0) convert between types. bool(x) is False only for 0, 0.0, "", empty collections and None, so bool("False") is True. / always returns a float. complex(1, 2) holds a real and an imaginary part.`,
+ex:`import math
+print(0.1 + 0.2, 0.1 + 0.2 == 0.3, math.isclose(0.1 + 0.2, 0.3))
+print(int(3.9), int(-3.9), round(2.5), round(3.5), -7 // 2, -7 % 3)
+print(int("ff", 16), float("1e3"), str(3.0), 7 / 2, 2 ** 100)
+inf = float("inf")
+nan = float("nan")
+print(inf > 10 ** 308, nan == nan, bool("False"), bool(0.0), complex(1, 2).imag)`,
+q:[[`What does 0.1 + 0.2 == 0.3 evaluate to?`,[`True`,`False`,`An error`],1,`Binary floats store 0.1 and 0.2 approximately, so the sum is 0.30000000000000004.`],[`round(2.5) is...`,[`3`,`2`,`2.5`],1,`Ties round to the nearest even number (banker's rounding).`]],
+x:{p:`Import math. Print, one per line: 0.1 + 0.2 == 0.3, then math.isclose(0.1 + 0.2, 0.3), then int(-3.9), then round(2.5), then bool("False").`,s:`import math
+`,h:`One print per line; int() truncates toward zero.`,t:`assert OUT.split()==["False","True","-3","2","True"],"expected False, True, -3, 2, True"`},
+d:{p:`This should print True (the sum is close to 0.3) but prints False. Fix the comparison.`,s:`print(0.1 + 0.2 == 0.3)`,h:`Use math.isclose, or compare the difference to a tiny number.`,t:`assert OUT.strip()=="True","it must print True"`}},
+{t:`Deep Dive: Comprehensions & Generators`,b:`list dict set iter next`,n:`A comprehension builds a collection in one expression: [x * 2 for x in range(5) if x != 3] (list), {k: v for ...} (dict), {x for ...} (set). Several for clauses nest left to right. Square brackets build the whole list at once; round brackets make a generator expression that computes items lazily, one per next(). A function containing yield is a generator function: calling it runs nothing until you iterate, each yield pauses and remembers its state, and finishing ends the iteration. A generator can be consumed only once. sum(), min() and max() accept generators directly.`,
+ex:`print([x * 2 for x in range(5) if x != 3])
+print({w: len(w) for w in ["hi", "python"]}, {c for c in "banana"} == set("ban"))
+print([(a, b) for a in range(2) for b in "xy"])
+g = (n * n for n in range(3))
+print(next(g), next(g), list(g), list(g))
+def countdown(n):
+    while n > 0:
+        yield n
+        n -= 1
+print(list(countdown(3)), sum(x for x in range(5)))`,
+q:[[`What is [x + 1 for x in [1, 2, 3]]?`,[`[2, 3, 4]`,`[1, 2, 3, 1]`,`[3, 4, 5]`],0,`Each item is increased by 1.`],[`A generator expression...`,[`builds the whole list first`,`computes items lazily, one at a time`,`can be reused forever`],1,`Items are produced on demand and used up once.`]],
+x:{p:`With a list comprehension print the squares of the even numbers from 0 to 8. Then print a dict comprehension mapping n to n * n for n from 1 to 3. Then print the sum of a generator expression over the odd numbers below 10.`,s:``,h:`range(0, 9, 2) gives the evens; sum(n for n in range(1, 10, 2)).`,t:`assert OUT.strip().splitlines()==["[0, 4, 16, 36, 64]","{1: 1, 2: 4, 3: 9}","25"],"expected three lines: the list, the dict, 25"`},
+d:{p:`This crashes because the function returns one number instead of producing three. Make it print [1, 2, 3].`,s:`def count3():
+    for i in range(1, 4):
+        return i
+print(list(count3()))`,h:`Use yield instead of return.`,t:`assert OUT.strip()=="[1, 2, 3]","it must print [1, 2, 3]"`}},
+{t:`Deep Dive: Arguments, Closures & Decorators`,b:`callable map filter sorted`,n:`Parameters can be positional, have defaults (def f(a, b=2)), collect extras with *args (a tuple) and **kwargs (a dict), and come after a bare * as keyword-only. At the call site f(*items, **options) unpacks them. Never use a mutable default like b=[]: it is shared between calls. A closure is an inner function that remembers variables of the function that made it; nonlocal lets it rebind them. A decorator is a function that takes a function and returns a replacement: @deco above def f means f = deco(f). Give the wrapper *args, **kwargs so it fits any function.`,
+ex:`def show(a, b=2, *args, key=0, **kw):
+    return a, b, args, key, kw
+print(show(1), show(1, 3, 4, 5, key=9, z=1))
+print(show(*[1, 2], **{"key": 7}))
+def counter():
+    n = 0
+    def tick():
+        nonlocal n
+        n += 1
+        return n
+    return tick
+t = counter()
+print(t(), t(), t())
+def twice(f):
+    def wrapper(*args, **kw):
+        return [f(*args, **kw), f(*args, **kw)]
+    return wrapper
+@twice
+def hi(name): return "hi " + name
+print(hi("Bo"), callable(hi), sorted(["bb", "a"], key=len), list(map(str, filter(None, [0, 1, 2]))))`,
+q:[[`*args collects...`,[`extra positional arguments into a tuple`,`keyword arguments into a dict`,`nothing`],0,`**kwargs is the one that collects keyword arguments.`],[`@deco above def f is the same as...`,[`f = deco(f)`,`deco = f(deco)`,`f = deco`],0,`The decorator receives the function and its return value replaces it.`]],
+x:{p:`Write a decorator counted(func): its wrapper accepts any arguments, adds 1 to wrapper.calls (starting at 0) on every call and returns func's result. Decorate add(a, b) returning a + b. Call add(1, 2) and add(3, 4), print add.calls, then print add(5, 6).`,s:``,h:`Set wrapper.calls = 0 after defining wrapper, then use wrapper.calls += 1 inside it.`,t:`assert OUT.split()==["2","11"],"expected 2 then 11"
+assert add.calls==3,"calls keeps counting"`},
+d:{p:`This decorator swallows the result, so it prints None. Make it print 1.`,s:`def loud(f):
+    def wrapper(*a):
+        f(*a)
+    return wrapper
+@loud
+def one(): return 1
+print(one())`,h:`The wrapper must return what f returns.`,t:`assert OUT.strip()=="1","it must print 1"`}},
+{t:`Deep Dive: Inheritance, Dunders & Dataclasses`,b:`object super property isinstance len repr`,n:`A subclass inherits everything from its parent: class Dog(Animal). Override a method to change it and call super().method() to reuse the parent's version. Dunder (double-underscore) methods plug your class into Python: __repr__ (developer text, also used by print when __str__ is missing), __str__ (friendly text), __eq__, __lt__ (so sorted works), __len__ (len(obj)), __add__ (obj + obj), __iter__, __getitem__ (obj[i]), __contains__ (in), __bool__, __call__. Return NotImplemented for types you do not understand. @dataclass writes __init__, __repr__ and __eq__ from annotated fields, which can have defaults.`,
+ex:`from dataclasses import dataclass
+class Base:
+    def hello(self): return "base"
+class Kid(Base):
+    def hello(self): return super().hello() + "+kid"
+class Bag:
+    def __init__(self, *items): self.items = list(items)
+    def __len__(self): return len(self.items)
+    def __getitem__(self, i): return self.items[i]
+    def __contains__(self, x): return x in self.items
+    def __repr__(self): return "Bag" + repr(tuple(self.items))
+    def __add__(self, o): return Bag(*self.items, *o.items)
+b = Bag(1, 2) + Bag(3)
+print(Kid().hello(), len(b), b[0], 2 in b, b, list(b))
+@dataclass
+class P:
+    x: int
+    y: int = 0
+print(P(1), P(1) == P(1, 0))`,
+q:[[`len(obj) calls...`,[`obj.__len__()`,`obj.length()`,`obj.size`],0,`Built-ins like len() dispatch to dunder methods.`],[`What does @dataclass generate?`,[`__init__, __repr__ and __eq__`,`only __init__`,`a database table`],0,`It builds the boilerplate methods from the annotated fields.`]],
+x:{p:`Write class Vec with x and y, an __add__ returning a new Vec, a __repr__ giving text like Vec(4, 6), and an __eq__ comparing x and y. Print Vec(1, 2) + Vec(3, 4), then Vec(1, 2) == Vec(1, 2).`,s:``,h:`__repr__ returns "Vec(" + str(self.x) + ", " + str(self.y) + ")".`,t:`assert OUT.strip().splitlines()==["Vec(4, 6)","True"],"expected Vec(4, 6) then True"`},
+d:{p:`This prints an object address instead of Vec(1, 2). Fix it.`,s:`class Vec:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+print(Vec(1, 2))`,h:`Add a __repr__ (or __str__) method.`,t:`assert OUT.strip()=="Vec(1, 2)","it must print Vec(1, 2)"`}},
+{t:`String Methods in Depth`,b:`str format len`,n:`Strings are immutable: every method returns a NEW string, so write s = s.upper(). Case: upper, lower, title, capitalize, swapcase, casefold. Trim: strip, lstrip, rstrip (optionally with characters to remove). Split and join: split(sep, maxsplit), rsplit, splitlines, partition, "-".join(items). Search: find (-1 if missing), index (raises ValueError), count, startswith, endswith, "x" in s. Edit: replace(old, new, count), zfill, center, ljust, rjust. Test: isdigit, isalpha, isalnum, isspace, islower, isupper. Formatting: f"{x:>8.2f}" (alignment, width, precision), f"{n:,}", f"{n:08b}", f"{name!r}" and "{} {}".format(a, b).`,
+ex:`s = "  Hello, World  "
+print(s.strip().lower(), s.split(","), "-".join("abc"))
+print("a-b-c".split("-", 1), "k=v".partition("="), "x".center(5, "*"))
+print("banana".find("an"), "banana".count("an"), "banana".replace("an", "AN", 1))
+print("42".zfill(5), "abc".isalpha(), "ab1".isalnum(), "Hi".swapcase())
+n = 1234567.891
+print(f"{n:,.2f}", f"{255:08b}", f"{'hi':>6}|", f"{'hi'!r}")`,
+q:[[`What does "a,b,,c".split(",") return?`,[`['a', 'b', 'c']`,`['a', 'b', '', 'c']`,`['a,b,,c']`],1,`Empty strings are kept between neighbouring separators.`],[`Why does s.upper() not change s itself?`,[`Strings are immutable, so it returns a new string`,`upper is broken`,`You must call it twice`],0,`Assign the result: s = s.upper().`]],
+x:{p:`Given text, print it stripped and in title case, then print how many words it has, then print the words joined with "-" in lowercase.`,s:`text = "  The quick brown fox  "
+`,h:`text.strip().title(), len(text.split()), "-".join(text.lower().split())`,t:`assert OUT.strip().splitlines()==["The Quick Brown Fox","4","the-quick-brown-fox"],"expected the title-cased text, 4, then the-quick-brown-fox"`},
+d:{p:`This should print 2 (the position of the first n) but prints -1. Fix it.`,s:`print("Banana".find("N"))`,h:`find is case-sensitive; compare like with like.`,t:`assert OUT.strip()=="2","it must print 2"`}},
+{t:`Collection Methods in Depth`,b:`list dict set tuple sorted reversed`,n:`list: append(x), extend(xs), insert(i, x), pop(i=-1), remove(x), index(x), count(x), sort(key=, reverse=) (in place, returns None), reverse(), copy(), clear(). sorted(xs) returns a new list instead. Slices copy: xs[::2], xs[::-1]; xs[1:3] = [9] replaces a slice. b = a shares the SAME list; a.copy() or a[:] makes a shallow copy. dict: get(k, default), setdefault(k, v), update(other), pop(k, default), items(), keys(), values(); merge with {**a, **b} or a | b. set: add, discard, remove (KeyError if missing), union |, intersection &, difference -, symmetric difference ^, issubset <=. tuple: count, index, and unpacking first, *rest = items.`,
+ex:`xs = [3, 1, 2]
+xs.append(5); xs.extend([4, 4]); xs.insert(0, 9)
+print(xs, xs.pop(), xs.index(1), xs.count(4))
+print(sorted(xs), xs.sort(), xs, xs[::-1], xs[1:3])
+a = [1, 2]; b = a; c = a.copy()
+b.append(3)
+print(a, c, a is b)
+d = {"a": 1}
+d.setdefault("b", 2); d.update(c=3)
+print(d, d.get("z", 0), d.pop("a"), {**d, "x": 9}, d | {"y": 1})
+s, t = {1, 2, 3}, {3, 4}
+print(s | t, s & t, s - t, s ^ t, {1} <= s)
+first, *rest = (1, 2, 3)
+print(first, rest)`,
+q:[[`What does xs.sort() return?`,[`the sorted list`,`None`,`a copy`],1,`sort works in place and returns None; sorted(xs) returns a new list.`],[`After b = a, b.append(1) changes...`,[`only b`,`both, since they are the same list`,`neither`],1,`Assignment copies the reference, not the list.`]],
+x:{p:`Given nums, print the sorted list of unique values, then the index of the first 3, then nums reversed using a slice, then how many 5s it has. One result per line.`,s:`nums = [5, 3, 5, 1, 3, 5]
+`,h:`sorted(set(nums)), nums.index(3), nums[::-1], nums.count(5)`,t:`assert OUT.strip().splitlines()==["[1, 3, 5]","1","[5, 3, 1, 5, 3, 5]","3"],"expected [1, 3, 5], 1, [5, 3, 1, 5, 3, 5], 3"`},
+d:{p:`This should leave the original list [3, 1, 2] untouched but prints it sorted. Fix it.`,s:`a = [3, 1, 2]
+b = a
+b.sort()
+print(a)`,h:`b = a does not copy; use a.copy().`,t:`assert OUT.strip()=="[3, 1, 2]","a must stay [3, 1, 2]"`}},
+{t:`Bitwise Operators & Number Systems`,b:`bin hex oct int`,n:`Integers are bit patterns. & (AND), | (OR), ^ (XOR), ~ (NOT, ~x equals -x - 1), << (shift left, times 2) and >> (shift right, floor-divide by 2). Masks: n & 1 is the lowest bit, n & (n - 1) clears the lowest set bit, 1 << k is bit k. bin(n), hex(n), oct(n) show bases (prefixes 0b, 0x, 0o); int(text, base) parses; f"{n:08b}" pads; n.bit_count() counts ones; n.bit_length() gives the size. Python ints never overflow, and negatives behave like infinite two's complement, so ~5 is -6 and -5 & 0xFF is 251. Comparison binds tighter than &, so write (n & 1) == 0. bool and set also support & | ^.`,
+ex:`print(6 & 3, 6 | 3, 6 ^ 3, ~6, 1 << 5, 100 >> 2)
+n = 0b101100
+print(n, bin(n), hex(n), oct(n), f"{n:08b}", int("101100", 2))
+print(n & (n - 1), n.bit_count(), n.bit_length(), (n >> 2) & 1)
+print(True & False, True | False, {1, 2} & {2, 3})
+print(bin(-5), ~5, -5 & 0xFF)`,
+q:[[`What is 6 & 3?`,[`7`,`2`,`5`],1,`110 AND 011 is 010, which is 2.`],[`What does 1 << 3 equal?`,[`3`,`8`,`4`],1,`Shifting left by 3 multiplies by 2 three times.`]],
+x:{p:`Print, one per line: 12 ^ 10, then the binary form of 10 padded with zeros to 8 digits, then the number of one-bits in 255 (use bit_count), then 1 << 10.`,s:``,h:`f"{10:08b}" and (255).bit_count()`,t:`assert OUT.strip().splitlines()==["6","00001010","8","1024"],"expected 6, 00001010, 8, 1024"`},
+d:{p:`This should print True (6 is even) but prints 0 because of operator precedence. Fix it.`,s:`n = 6
+print(n & 1 == 0)`,h:`Add parentheses around n & 1.`,t:`assert OUT.strip()=="True","it must print True"`}},
+{t:`Standard Library Tour`,b:`__import__ sorted sum min max`,n:`import math brings in a module; use import x, from x import y or import x as z, then call x.y(). if __name__ == "__main__": runs code only when the file is executed directly. dir(module) lists names and help(module.func) shows docs. Essentials: math (sqrt, floor, ceil, pi, gcd, isclose, log); random (random, randint, choice, shuffle, seed for repeatable results); json (dumps and loads convert data to text and back); datetime (date, datetime, timedelta, strftime); collections (Counter, defaultdict, deque, namedtuple); itertools (chain, product, permutations, combinations, accumulate, islice); functools (reduce, lru_cache, partial); re (search, findall, sub); statistics (mean, median); plus sys, os and pathlib.Path.`,
+ex:`import math, json, random, re, statistics
+from collections import Counter, deque
+from itertools import combinations, accumulate
+from functools import reduce, lru_cache
+from datetime import date, timedelta
+print(math.sqrt(16), math.floor(2.7), math.ceil(2.1), math.gcd(12, 18))
+random.seed(1)
+print(random.randint(1, 1), random.choice("a"))
+print(json.dumps({"b": [1, 2], "a": None}, sort_keys=True), json.loads("[1, 2]"))
+print(Counter("banana").most_common(2), deque([1, 2], maxlen=2))
+print(list(combinations("abc", 2)), list(accumulate([1, 2, 3])), reduce(lambda a, b: a * b, [1, 2, 3, 4]))
+print(date(2024, 2, 28) + timedelta(days=2), re.findall(r"[0-9]+", "a1b22"))
+@lru_cache(maxsize=None)
+def fib(n): return n if n < 2 else fib(n - 1) + fib(n - 2)
+print(fib(30), statistics.median([3, 1, 2]))`,
+q:[[`What does "from math import sqrt" let you do?`,[`Call sqrt(9) directly`,`Nothing yet`,`Import every module`],0,`It copies the name sqrt into your namespace.`],[`Which tool counts items in an iterable?`,[`collections.Counter`,`json`,`random`],0,`Counter(iterable) maps each item to its count.`]],
+x:{p:`Use collections.Counter to count the letters of "mississippi" and print the count of "s". Then use json.dumps with sort_keys=True to print the dict {"b": 1, "a": 2} as JSON text. Then use math.gcd to print gcd(84, 36).`,s:``,h:`from collections import Counter; json.dumps(d, sort_keys=True); math.gcd(84, 36)`,t:`assert OUT.strip().splitlines()==["4",'{"a": 2, "b": 1}',"12"],"expected 4, then the sorted JSON, then 12"`},
+d:{p:`This crashes with NameError. Fix the import so it prints 5.0.`,s:`print(sqrt(25))`,h:`sqrt lives in the math module.`,t:`assert OUT.strip()=="5.0","it must print 5.0"`}},
+{t:`Context Managers`,b:`open object`,n:`with runs setup and guaranteed cleanup: with open("f.txt") as f: closes the file even after an error. Any object with __enter__(self) (its return value goes to as) and __exit__(self, exc_type, exc, tb) works; if __exit__ returns True the exception is swallowed. contextlib.contextmanager turns a generator with ONE yield into a context manager: code before yield is setup, code after it is cleanup (put the yield in try/finally to survive errors). contextlib.suppress(ValueError) ignores that error, and one with can hold several managers: with a() as x, b() as y.`,
+ex:`from contextlib import contextmanager, suppress
+class Tag:
+    def __init__(self, name): self.name = name
+    def __enter__(self):
+        print("enter", self.name)
+        return self
+    def __exit__(self, kind, err, tb):
+        print("exit", self.name, kind.__name__ if kind else None)
+        return kind is KeyError
+with Tag("a") as t:
+    print("inside", t.name)
+with Tag("b"):
+    {}["x"]
+print("survived")
+@contextmanager
+def shout(msg):
+    print("start", msg)
+    try:
+        yield msg.upper()
+    finally:
+        print("end", msg)
+with shout("hi") as up, suppress(ValueError):
+    print(up)
+    int("x")`,
+q:[[`When does __exit__ run?`,[`Only if there is no error`,`Always, even after an error`,`Never`],1,`That is the point of with: guaranteed cleanup.`],[`What does returning True from __exit__ do?`,[`Re-raises the error`,`Swallows the exception`,`Restarts the block`],1,`The exception is considered handled.`]],
+x:{p:`Write a @contextmanager function section(events, name) that appends "start " + name before the block and "end " + name after it, even if the block raises. Run a block that appends "work" with name "a", then print the events list.`,s:`from contextlib import contextmanager
+events = []
+`,h:`yield inside try, and append the "end" text in finally.`,t:`assert OUT.strip()=="['start a', 'work', 'end a']","expected ['start a', 'work', 'end a']"`},
+d:{p:`This crashes with ValueError because the file is read after it closed. Make it print hi.`,s:`with open("c.txt", "w") as f:
+    f.write("hi")
+with open("c.txt") as f:
+    pass
+print(f.read())`,h:`Read inside the with block.`,t:`assert OUT.strip()=="hi","it must print hi"`}},
+{t:`match, Walrus & Type Hints`,b:`type isinstance len`,n:`match subject: case pattern: compares structure. Patterns: literals (case 0), alternatives (case 1 | 2), sequences (case [x, y], case [first, *rest]), mappings (case {"k": v}), class patterns (case int(), case Point(x=0)), guards (case n if n > 9), captures (names bind values) and case _ (default, must come last). := (walrus) assigns inside an expression: if (n := len(xs)) > 3. Type hints document types and are NOT enforced: def f(x: int, y: str = "a") -> list[int]; n: int = 3. Common forms: list[int], dict[str, int], tuple[int, ...], int | None, Callable, Any, TypeVar. They live in f.__annotations__ and are checked by tools like mypy, not by Python.`,
+ex:`def kind(x):
+    match x:
+        case 0: return "zero"
+        case 1 | 2: return "small"
+        case int() if x < 0: return "negative"
+        case int(): return "int"
+        case [a, b]: return "pair " + str(a + b)
+        case [first, *rest]: return "list from " + str(first)
+        case {"k": v}: return "dict k=" + str(v)
+        case str() as s: return "text " + s
+        case _: return "other"
+print([kind(v) for v in (0, 2, -5, 9, [1, 2], [7, 8, 9], {"k": 1}, "hi", 1.5)])
+if (n := len("hello")) > 3:
+    print("long", n)
+def add(a: int, b: int = 2) -> int:
+    return a + b
+print(add.__annotations__, add("a", "b"))`,
+q:[[`What does case _ match?`,[`Anything (the default)`,`Only underscores`,`Nothing`],0,`It is the wildcard and must be the last case.`],[`Does Python raise an error for add("a", "b") when the hints say int?`,[`Yes, at call time`,`No, hints are not enforced`,`Only in strict mode`],1,`Type hints are documentation for people and tools.`]],
+x:{p:`Write size(n) using match and guards: 0 gives "zero", a negative number gives "negative", a number above 9 gives "big", anything else "small". Print size(0), size(-4), size(50), size(3), one per line.`,s:``,h:`case n if n < 0: ... case n if n > 9: ...`,t:`assert OUT.strip().splitlines()==["zero","negative","big","small"],"expected zero, negative, big, small"`},
+d:{p:`This raises SyntaxError because the default case comes first. Make it print big.`,s:`def size(n):
+    match n:
+        case _:
+            return "small"
+        case n if n > 9:
+            return "big"
+print(size(50))`,h:`Put case _ last.`,t:`assert OUT.strip()=="big","it must print big"`}},
+{t:`Testing: assert & unittest`,b:`AssertionError`,n:`assert condition, "message" raises AssertionError when the condition is False: the simplest test. unittest groups tests in a class inheriting unittest.TestCase; every method named test_* runs on its own. Use assertEqual(a, b), assertTrue, assertFalse, assertIn, assertIsNone, assertAlmostEqual, assertRaises (as a context manager) and subTest; setUp runs before each test. unittest.main(argv=["x"], exit=False) runs them here, and TextTestRunner(...).run(suite).wasSuccessful() gives True or False. Test normal cases, edge cases (empty, zero, negative) and error cases. A failing test written first is a precise specification.`,
+ex:`import unittest
+def div(a, b): return a / b
+class T(unittest.TestCase):
+    def setUp(self): self.base = 10
+    def test_ok(self): self.assertEqual(div(self.base, 5), 2)
+    def test_zero(self):
+        with self.assertRaises(ZeroDivisionError): div(1, 0)
+    def test_float(self): self.assertAlmostEqual(div(1, 3), 0.3333, places=3)
+unittest.main(argv=["x"], exit=False)`,
+q:[[`Which method name will unittest run automatically?`,[`check_sum`,`test_sum`,`sum_test`],1,`Methods must start with test_.`],[`What does assertRaises check?`,[`That the code raises the given exception`,`That the code never fails`,`That the output is empty`],0,`Used as: with self.assertRaises(ValueError): ...`]],
+x:{p:`Write fizz(n) returning "Fizz" for multiples of 3, "Buzz" for multiples of 5, "FizzBuzz" for both, otherwise str(n). Then write a TestCase with at least 4 test_ methods (one per case) and run it with unittest.main(argv=["x"], exit=False).`,s:`import unittest
+`,h:`Check 15 first (or both 3 and 5), then 3, then 5.`,t:`assert "OK" in OUT and "FAILED" not in OUT,"all your tests must pass"
+assert int(OUT.split("Ran ")[1].split()[0])>=4,"write at least 4 tests"`},
+d:{p:`One test fails. Fix the function, not the test.`,s:`import unittest
+def double(n):
+    return n + 2
+class T(unittest.TestCase):
+    def test_double(self):
+        self.assertEqual(double(5), 10)
+unittest.main(argv=["x"], exit=False)`,h:`double should multiply.`,t:`assert "OK" in OUT and "FAILED" not in OUT,"the test must pass"`}},
+{t:`Async/Await & asyncio`,b:`aiter anext`,n:`async def defines a coroutine function: calling it returns a coroutine object that does nothing until it is awaited (await coro) or scheduled. await pauses this coroutine until the other one finishes, letting others run. asyncio.sleep(s) is the non-blocking pause (time.sleep blocks everything). asyncio.gather(c1, c2) runs coroutines concurrently and returns results in the order given; asyncio.create_task starts one in the background; asyncio.wait_for adds a timeout; async with and async for use async context managers and iterators; asyncio.run(main()) starts the event loop in a normal script (this page already runs one, so use top-level await). Concurrency helps while WAITING (network, files), not with heavy computation.`,
+ex:`import asyncio
+async def work(name, delay):
+    await asyncio.sleep(delay)
+    return name + " done"
+print(await asyncio.gather(work("a", 0.02), work("b", 0.01)))
+task = asyncio.create_task(work("c", 0))
+print(await task)
+try:
+    await asyncio.wait_for(asyncio.sleep(1), 0.01)
+except asyncio.TimeoutError:
+    print("timeout")
+class Gate:
+    async def __aenter__(self):
+        print("open")
+        return self
+    async def __aexit__(self, *a):
+        print("close")
+async with Gate():
+    print("inside")
+print(asyncio.iscoroutinefunction(work))`,
+q:[[`What does calling an async def function return?`,[`Its result`,`A coroutine object`,`None`],1,`The body only runs once the coroutine is awaited.`],[`asyncio.gather(a, b) returns results...`,[`In the order given`,`In completion order`,`Randomly`],0,`Results line up with the arguments.`]],
+x:{p:`Write async def square_later(n) that awaits asyncio.sleep(0) and returns n * n. Use asyncio.gather to run it for 1, 2 and 3 and print the resulting list.`,s:`import asyncio
+`,h:`print(await asyncio.gather(*[square_later(n) for n in (1, 2, 3)]))`,t:`assert OUT.strip()=="[1, 4, 9]","expected [1, 4, 9]"`},
+d:{p:`This prints a coroutine object instead of 49. Fix it.`,s:`import asyncio
+async def sq(n):
+    await asyncio.sleep(0)
+    return n * n
+print(sq(7))`,h:`A coroutine must be awaited.`,t:`assert OUT.strip()=="49","it must print 49"`}}
+];
+const P=[
+{n:`Banner`,p:`Start the Algorithm Lab, a program you will grow in every unit. Define a function banner(title, version) that returns title + " v" + str(version). A function looks like: def name(parameters): followed by an indented body that ends with return value. Optionally print banner("Algorithm Lab", 1).`,h:`return title + " v" + str(version)`,t:`assert banner("X", 2)=="X v2","banner(title, version) should return 'X v2'"`},
+{n:`Euclid's GCD`,p:`Add gcd(a, b) using Euclid's algorithm: while b is not 0, replace (a, b) with (b, a % b); the answer is a. Keep banner.`,h:`while b: a, b = b, a % b`,t:`assert gcd(12,18)==6 and gcd(17,5)==1 and gcd(9,0)==9,"gcd(12, 18) is 6, gcd(17, 5) is 1, gcd(9, 0) is 9"`},
+{n:`Caesar cipher`,p:`Add caesar(text, shift): shift each lowercase letter forward by shift places (wrapping z to a) and leave every other character alone. Use ord and chr. caesar("xyz", 3) is "abc".`,h:`For a letter c: chr((ord(c) - 97 + shift) % 26 + 97).`,t:`assert caesar("abc",1)=="bcd" and caesar("xyz",3)=="abc" and caesar("hi, you!",2)=="jk, aqw!","caesar shifts a-z, wraps, and keeps other characters"`},
+{n:`Primes and totient`,p:`Add is_prime(n) (trial division with a loop; False below 2) and totient(n): how many numbers from 1 to n have gcd(k, n) == 1. Reuse your gcd. totient(9) is 6.`,h:`is_prime: try d from 2 while d * d <= n. totient: count k in range(1, n + 1) with gcd(k, n) == 1.`,t:`assert [n for n in range(20) if is_prime(n)]==[2,3,5,7,11,13,17,19],"is_prime is wrong"
+assert totient(9)==6 and totient(10)==4 and totient(1)==1,"totient(9) is 6, totient(10) is 4, totient(1) is 1"`},
+{n:`Letter statistics`,p:`Add letter_freq(text), a dict counting letters case-insensitively (lowercase keys, ignore every other character), and most_common(text), the letter with the highest count (alphabetically first on a tie).`,h:`counts[c] = counts.get(c, 0) + 1, then max(sorted(counts), key=counts.get).`,t:`assert letter_freq("Hello, World")=={"h":1,"e":1,"l":3,"o":2,"w":1,"r":1,"d":1},"letter_freq counts letters case-insensitively"
+assert most_common("hello world")=="l" and most_common("ab")=="a","most_common is wrong"`},
+{n:`Cipher cracker`,p:`Add crack_caesar(cipher, common="e"): assume the most common letter of the ciphertext stands for common, work out the shift, and return the decoded text (use most_common and caesar).`,h:`shift = ord(most_common(cipher)) - ord(common); return caesar(cipher, -shift)`,t:`plain="eleven elves seem eerie"
+assert crack_caesar(caesar(plain,7))==plain and crack_caesar(caesar(plain,19))==plain,"crack_caesar should recover the text"`},
+{n:`Safe runner`,p:`Add safe_run(func, *args): call func(*args) and return ("ok", result), or ("error", ExceptionName) if any Exception is raised (use type(e).__name__).`,h:`try: return ("ok", func(*args)) except Exception as e: return ("error", type(e).__name__)`,t:`assert safe_run(gcd,12,18)==("ok",6),"safe_run success case"
+assert safe_run(int,"abc")==("error","ValueError") and safe_run(divmod,1,0)==("error","ZeroDivisionError"),"safe_run should report the exception name"`},
+{n:`The Lab class`,p:`Add class Lab with a tools dict, register(name, func) to store a tool, and run(name, *args) returning safe_run's result for that tool. An unknown name must give an ("error", ...) tuple instead of crashing.`,h:`Look the tool up inside try/except so a missing name becomes an error tuple.`,t:`lab=Lab();lab.register("gcd",gcd)
+assert lab.run("gcd",12,18)==("ok",6),"Lab.run should return safe_run's result"
+assert lab.run("nope")[0]=="error","unknown tools should give an error tuple"`},
+{n:`Bytes toolbox`,p:`Add checksum(text): the sum of the UTF-8 bytes of text, modulo 256, and xor_cipher(data, key): XOR every byte of a bytes object with key and return bytes. Applying it twice with the same key restores the data.`,h:`sum(text.encode()) % 256 and bytes(b ^ key for b in data)`,t:`assert checksum("abc")==38,"checksum('abc') should be 38"
+assert xor_cipher(xor_cipher(b"hi",5),5)==b"hi" and isinstance(xor_cipher(b"hi",5),bytes),"xor_cipher must return bytes and undo itself"`},
+{n:`Safe calculator`,p:`Add evaluate(expr, tools): eval the text expression, but give it only the tools dict and no built-ins by passing {"__builtins__": {}, **tools} as the namespace. evaluate("gcd(12, 18) + 1", {"gcd": gcd}) is 7, and evaluate("__import__('os')", {}) must raise an error.`,h:`return eval(expr, {"__builtins__": {}, **tools})`,t:`assert evaluate("gcd(12, 18) + 1",{"gcd":gcd})==7,"evaluate should see the tools"
+try:
+    evaluate("__import__('os')",{})
+    raise SystemExit("built-ins must be blocked")
+except Exception:
+    pass`},
+{n:`Persistent log`,p:`Add save_log(path, lines) writing one line per item, append_log(path, line), and load_log(path) returning the lines as a list (an empty list if the file does not exist).`,h:`Use open with "w" and "a"; in load_log catch FileNotFoundError.`,t:`save_log("lab.txt",["a","b"]);append_log("lab.txt","c")
+assert load_log("lab.txt")==["a","b","c"],"load_log should return a, b, c"
+assert load_log("nothing_here.txt")==[],"a missing file gives an empty list"`},
+{n:`Async job stream`,p:`Add async generator stream(lab, jobs) yielding (name, lab.run(name, *args)) for each (name, args) job, and async def collect(agen) that uses aiter and anext to gather every item into a list.`,h:`In collect: it = aiter(agen), then loop while (v := await anext(it, None)) is not None.`,t:`lab=Lab();lab.register("gcd",gcd)
+got=await collect(stream(lab,[("gcd",(12,18)),("gcd",(7,3))]))
+assert got==[("gcd",("ok",6)),("gcd",("ok",1))],"collect(stream(...)) should list both results"`},
+{n:`Sentinel lookups`,p:`Add method Lab.get(name, default=...): return the tool, or default if one was given; if default is still the Ellipsis, raise UnknownTool (from the exceptions unit) for an unknown name. (Ellipsis marks "nothing passed", since None can be a real default.)`,h:`if name in self.tools: return it; if default is ...: raise UnknownTool(name); return default`,t:`lab=Lab();lab.register("gcd",gcd)
+assert lab.get("gcd") is gcd and lab.get("nope",None) is None,"get with and without a default"
+try:
+    lab.get("nope")
+    raise SystemExit("get should raise UnknownTool")
+except UnknownTool:
+    pass`},
+{n:`Custom exceptions`,p:`Add class LabError(Exception), class ToolError(LabError) and class UnknownTool(LabError, KeyError). Later units raise UnknownTool for missing tools, so callers can catch it as a LabError or as a KeyError.`,h:`class UnknownTool(LabError, KeyError): pass.`,t:`assert issubclass(ToolError,LabError) and issubclass(UnknownTool,LabError) and issubclass(UnknownTool,KeyError),"check the class hierarchy"`},
+{n:`Log errors`,p:`Add class LogMissing(LabError) and read_log(path) returning the file's lines, but raising LogMissing when the file does not exist, chaining the original error with raise ... from e. Keep load_log working.`,h:`except FileNotFoundError as e: raise LogMissing(path) from e`,t:`assert issubclass(LogMissing,LabError),"LogMissing must subclass LabError"
+assert read_log("lab.txt")==["a","b","c"],"read_log should return the lines"
+try:
+    read_log("missing_log.txt")
+    raise SystemExit("expected LogMissing")
+except LogMissing as e:
+    assert isinstance(e.__cause__,FileNotFoundError),"chain with raise ... from e"`},
+{n:`Run checks`,p:`Add run_checks(checks), where checks is a list of (name, func, args) tuples: run each one with safe_run and return the text "N ok, M failed". If any failed, raise ExceptionGroup("failures", [ToolError(name), ...]) instead, one ToolError per failure.`,h:`errors = [ToolError(name) for failed checks]; if errors: raise ExceptionGroup("failures", errors).`,t:`assert run_checks([("g",gcd,(12,18)),("p",is_prime,(7,))])=="2 ok, 0 failed","report text"
+try:
+    run_checks([("g",gcd,(12,18)),("bad",gcd,(1,"x"))])
+    raise SystemExit("expected ExceptionGroup")
+except ExceptionGroup as g:
+    assert len(g.exceptions)==1 and isinstance(g.exceptions[0],ToolError),"one ToolError per failed check"`},
+{n:`Parsing numbers`,p:`Add parse_number(text): return an int for integer text such as "42" or " -7 ", otherwise a float for text such as "3.5" or "1e3", and let ValueError escape for anything else.`,h:`try: return int(text) except ValueError: return float(text)`,t:`assert parse_number("42")==42 and type(parse_number("42")) is int and parse_number(" -7 ")==-7,"integer text gives an int"
+assert parse_number("3.5")==3.5 and type(parse_number("1e3")) is float,"decimals and exponents give floats"
+try:
+    parse_number("abc")
+    raise SystemExit("parse_number('abc') should raise ValueError")
+except ValueError:
+    pass`},
+{n:`Prime generator`,p:`Add primes_gen(limit), a generator that yields the primes below limit (reuse is_prime), and squares_of_primes(limit), a dict comprehension mapping each such prime to its square.`,h:`for n in range(limit): if is_prime(n): yield n`,t:`import types
+assert list(primes_gen(20))==[2,3,5,7,11,13,17,19] and isinstance(primes_gen(5),types.GeneratorType),"primes_gen must be a generator of the primes below limit"
+assert squares_of_primes(10)=={2:4,3:9,5:25,7:49},"squares_of_primes maps prime to square"`},
+{n:`Decorators and closures`,p:`Add logged(func), a decorator that appends (func.__name__, args) to a module-level list CALLS on every call and returns func's result, and make_multiplier(k), a closure returning a function that multiplies its argument by k.`,h:`Define CALLS = [] at the top level; the wrapper appends then returns func(*args).`,t:`CALLS.clear()
+@logged
+def double(n): return n*2
+assert double(4)==8 and CALLS==[("double",(4,))],"logged records (name, args) in CALLS and returns the result"
+assert make_multiplier(3)(4)==12,"make_multiplier is a closure"`},
+{n:`Jobs and pipelines`,p:`Use @dataclass to add Job(name, args=()). Add class Pipeline(Lab) that overrides run (call super().run, then append (name, result) to self.history), defines __len__ (the number of tools) and run_job(job), which runs a Job through self.run.`,h:`Pipeline.__init__ calls super().__init__() and sets self.history = []. run_job: return self.run(job.name, *job.args).`,t:`j=Job("gcd",(12,18))
+assert j.name=="gcd" and j==Job("gcd",(12,18)) and Job("x").args==(),"Job is a dataclass with args defaulting to ()"
+p=Pipeline();p.register("gcd",gcd)
+assert p.run_job(j)==("ok",6) and len(p)==1 and isinstance(p,Lab),"Pipeline subclasses Lab"
+assert p.history==[("gcd",("ok",6))],"history records each call exactly once"`},
+{n:`Text cleaning`,p:`Add clean(text): strip the ends, lowercase everything and squeeze any run of whitespace into one space. Add is_palindrome(text): True when the text reads the same backwards, ignoring case, spaces and punctuation (use clean and str.isalnum).`,h:`" ".join(text.lower().split()), then keep only characters where c.isalnum().`,t:`assert clean("  Hello   World ")=="hello world","clean squeezes whitespace and lowercases"
+assert is_palindrome("A man, a plan, a canal: Panama") and not is_palindrome("Python"),"is_palindrome ignores case and punctuation"`},
+{n:`Top letters`,p:`Add top_letters(text, k): the k most frequent letters as (letter, count) pairs, sorted by count (highest first) and then alphabetically. Reuse letter_freq.`,h:`sorted(freq.items(), key=lambda kv: (-kv[1], kv[0]))[:k]`,t:`assert top_letters("hello world",2)==[("l",3),("o",2)],"top_letters orders by count, then letter"
+assert top_letters("abab",5)==[("a",2),("b",2)],"asking for more than exist is fine"`},
+{n:`Bit tricks`,p:`Add popcount(n) (the number of one-bits), is_power_of_two(n) (True only for 1, 2, 4, 8, ...; use the n & (n - 1) trick) and gray_code(n) (n ^ (n >> 1)).`,h:`bin(n).count("1") or n.bit_count(); n > 0 and n & (n - 1) == 0`,t:`assert popcount(255)==8 and popcount(0)==0,"popcount counts one-bits"
+assert is_power_of_two(64) and not is_power_of_two(96) and not is_power_of_two(0),"is_power_of_two is wrong"
+assert [gray_code(i) for i in range(4)]==[0,1,3,2],"gray_code(n) is n ^ (n >> 1)"`},
+{n:`Word summary`,p:`Add summarize(text): count the words of text.lower().split() with collections.Counter and return json.dumps of the counts with sort_keys=True.`,h:`import json; from collections import Counter; return json.dumps(Counter(...), sort_keys=True)`,t:`assert summarize("b a B")=='{"a": 1, "b": 2}',"summarize returns sorted JSON word counts"`},
+{n:`Logged sections`,p:`Add EVENTS = [] and a context manager log_section(name) that appends ("enter", name) when the block starts and ("exit", name) when it ends, even if the block raises. Use @contextmanager with try/finally, or a class.`,h:`from contextlib import contextmanager; append, then try: yield finally: append.`,t:`EVENTS.clear()
+with log_section("a"):
+    pass
+try:
+    with log_section("b"):
+        raise ValueError("boom")
+except ValueError:
+    pass
+assert EVENTS==[("enter","a"),("exit","a"),("enter","b"),("exit","b")],"enter and exit must be logged, even after an error"`},
+{n:`Describe anything`,p:`Add describe(x: object) -> str using match/case: 0 gives "zero", any other int gives "int", a list of two items gives "pair", a dict with key "k" gives "has k", anything else "other". Keep the type hints.`,h:`case 0 / case int() / case [_, _] / case {"k": _} / case _`,t:`assert [describe(v) for v in (0,5,[1,2],{"k":1},"a")]==["zero","int","pair","has k","other"],"describe is wrong"
+assert describe.__annotations__.get("return") is str,"annotate the return type as str"`},
+{n:`Unit tests`,p:`Add class TestLab(unittest.TestCase) with at least 3 test_ methods that check your gcd, caesar and is_prime, and run_tests() that runs TestLab quietly and returns True only if every test passed: unittest.TextTestRunner(stream=io.StringIO()).run(suite).wasSuccessful(), where suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestLab).`,h:`import unittest, io at the top of your code.`,t:`assert len([m for m in dir(TestLab) if m.startswith("test_")])>=3,"write at least 3 test_ methods"
+assert run_tests() is True,"run_tests should return True when all tests pass"`},
+{n:`Concurrent jobs`,p:`Final step. Add async def run_all(lab, jobs): run every (name, args) job concurrently with asyncio.gather (await asyncio.sleep(0) before each lab.run) and return the results in job order.`,h:`async def one(n, a): await asyncio.sleep(0); return lab.run(n, *a), then gather(*[one(n, a) for n, a in jobs]).`,t:`lab=Lab();lab.register("gcd",gcd)
+got=await run_all(lab,[("gcd",(12,18)),("gcd",(7,3))])
+assert got==[("ok",6),("ok",1)],"run_all returns results in job order"`}
+];
+const ORD=[`Variables & Types`,`Numbers & Math`,`Deep Dive: Numbers, Floats & Conversions`,`Text & Number Bases`,`String Methods in Depth`,`Logic & Loops`,`Collections`,`Collection Methods in Depth`,`Functions`,`Deep Dive: Arguments, Closures & Decorators`,`Deep Dive: Comprehensions & Generators`,`Errors & Exceptions`,`Files & Input`,`Context Managers`,`Exceptions I: Core Hierarchy`,`Exceptions II: Files, OS & Imports`,`Exceptions III: Text, Syntax, Control & Warnings`,`Bitwise Operators & Number Systems`,`Bytes & Raw Data`,`Objects & Introspection`,`Deep Dive: Inheritance, Dunders & Dataclasses`,`Special Values & Interpreter`,`Code as Data & Namespaces`,`Standard Library Tour`,`match, Walrus & Type Hints`,`Testing: assert & unittest`,`Async Iteration`,`Async/Await & asyncio`],OLDT=D.map(t=>t.t);
+{const m=new Map(D.map((t,i)=>[t.t,[t,P[i]]]));D.length=0;P.length=0;ORD.forEach(n=>{const[t,p]=m.get(n);D.push(t);P.push(p)})}
+const $=id=>document.getElementById(id),A=$("a"),API="https://YOUR-PROJECT.vercel.app/api/chat",PF="pf3",IV=[0,1,3,7,16,35],LV=["New","Started","Learning","Practiced","Strong","Mastered"];
+const day=()=>Math.floor(Date.now()/864e5),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let S={xp:0,streak:0,last:0,k:{}},cur=null,st=0,py=null,passed=false,q=null,sel=null,ans=false,after=null,lab="",rq=[];
+try{Object.assign(S,JSON.parse(localStorage.getItem("pq")))}catch(e){}if(!S.k)S.k={};S.pc=S.pc||{};S.pp=S.pp||{};if(S.v!=2){const nk={},pc={},pp={};OLDT.forEach((n,i)=>{const j=ORD.indexOf(n);if(S.k[i])nk[j]=S.k[i];if(S.pc[i])pc[j]=S.pc[i];if(S.pp[i])pp[j]=S.pp[i]});S.k=nk;S.pc=pc;S.pp=pp;S.v=2}
+const sv=()=>{try{localStorage.setItem("pq",JSON.stringify(S))}catch(e){}};
+const K=i=>S.k[i]||(S.k[i]={b:0,w:0,due:0,n:0,x:0,d:0});
+function rate(i,ok){const k=K(i);k.n++;if(ok)k.b=Math.min(5,k.b+1);else{k.b=Math.max(0,k.b-2);k.w++}k.due=day()+IV[k.b];sv()}
+function tick(){const t=day();if(S.last!=t){S.streak=S.last==t-1?S.streak+1:1;S.last=t}}
+const hd=p=>`<div class=top><button class=x onclick="home()">Back</button>${p!=null?`<div class=bar><i style="width:${p}%"></i></div>`:`<span style="flex:1"></span>`}<span>XP ${S.xp}</span></div>`;
+const tabs=()=>{for(const t of A.querySelectorAll("textarea"))t.onkeydown=e=>{if(e.key=="Tab"){e.preventDefault();document.execCommand("insertText",false,"    ")}}};
+
+function home(){cur=null;const t=day(),due=D.filter((_,i)=>K(i).n&&K(i).due<=t).length,avg=Math.round(D.reduce((s,_,i)=>s+K(i).b,0)/D.length*20);
+A.innerHTML=`<div class=top><b>PyQuest</b><span style="margin-left:auto">Streak ${S.streak} · XP ${S.xp}</span></div><h2>Python: zero to every built-in</h2><p>Overall mastery: ${avg}%</p>`+(due?`<button class=main onclick="rev()">Review ${due} due topic${due>1?"s":""}</button>`:`<small>No reviews due. Finish a lesson to start your spaced-repetition schedule.</small>`)+D.map((l,i)=>{const k=K(i);return`<button class=card onclick="go(${i})">${i+1}. ${l.t}<span class=tag>${LV[k.b]}${k.w>=2&&k.b<3?" · needs work":""}${k.n&&k.due<=t?" · due":""}${k.p?" · project done":""}</span><div class=bar style="height:8px;margin-top:6px"><i style="width:${k.b*20}%"></i></div></button>`}).join("")+`<button class=card onclick="bk()">Build all full lessons</button><small id=bs></small><button class=card onclick="cov()">Built-in coverage check</button>`}
+function go(i){cur=i;st=0;stage()}
+function stage(){const t=D[cur];if(st==0)return learn(t);if(st<3)return showQ(cur,t.q[st-1],`Quick check ${st}/2`,()=>{st++;stage()});if(st<5)return code(t,st==3?"x":"d");if(st==5)return code(t,"p");fin()}
+function learn(t){A.innerHTML=hd(0)+`<h2>${t.t}</h2><p>${esc(t.n)}</p><div>${t.b.split(" ").map(x=>`<span class=chip>${x}</span>`).join("")}</div><div id=full class=full></div><button class=sec onclick="lf(1)">Rewrite full lesson</button><p>Edit the example and run it:</p><textarea id=ex>${esc(t.ex)}</textarea><button class=sec style="margin-top:8px" onclick="tr()">Run it</button> <button class=sec onclick="tx()">Explain this code</button><div id=o hidden></div><div class=msg id=xp hidden></div><button class=main onclick="st=1;stage()">Continue</button>`;tabs();lf()}
+/* Turns a pasted REPL transcript (">>> code", "... more", plain output lines) into just the code. */
+const clean=s=>{const L=String(s).replace(/\r/g,"").split("\n");if(!L.some(l=>/^\s*>>>(\s|$)/.test(l)))return L.join("\n");return L.map(l=>l.match(/^\s*(?:>>>|\.\.\.)(?: (.*))?$/)).filter(Boolean).map(m=>m[1]||"").join("\n").trim()};
+/* Reads a Pyodide traceback: error type, message, and the line number in the learner's code. */
+function perr(e){const full=String(e&&e.message||e).trim(),L=full.split("\n").map(x=>x.trimEnd()).filter(x=>x.trim()),last=L[L.length-1]||"Error",m=last.match(/^([A-Za-z_][\w.]*)(?::\s?(.*))?$/);let line=null;for(const x of full.matchAll(/File "<exec>", line (\d+)/g))line=+x[1];return{type:m?m[1]:"Error",msg:m?m[2]||"":last,line,full}}
+const EH={SyntaxError:"Python could not read this line. Look for a missing quote, bracket or colon, or a stray character. Also make sure no program output got mixed into the code.",IndentationError:"The spaces at the start of a line don't match. Lines inside if, for, while or def must all be indented by the same amount (4 spaces).",NameError:"Python doesn't know this name yet. Check the spelling, and make sure the variable is created before this line runs.",UnboundLocalError:"A variable was used inside a function before it was given a value.",TypeError:"A value has the wrong type for this operation, for example adding text to a number, or calling a function with the wrong number of arguments.",ValueError:"The type is right but the value is not, for example int(\"abc\").",IndexError:"You asked for a position that doesn't exist in the list or string. Counting starts at 0.",KeyError:"That key is not in the dictionary.",ZeroDivisionError:"You can't divide by zero.",AttributeError:"This object has no such attribute or method. Check the spelling and what type the object is.",ModuleNotFoundError:"That module isn't available in this in-browser Python.",ImportError:"Python could not import that name. Check the spelling and the module.",RecursionError:"A function kept calling itself and never stopped.",FileNotFoundError:"There is no file with that name here. In the browser, create it first with open(name, \"w\")."};
+function errBox(v){if(v.phase=="test")return`<div class="msg no">Not quite yet: ${esc(v.type=="AssertionError"&&v.msg?v.msg:"the checker expected something your code didn't provide ("+v.type+(v.msg?": "+v.msg:"")+")")}</div>`;
+const Ls=(v.code||"").split("\n"),sl=v.line&&v.line<=Ls.length?Ls[v.line-1]:null;let h=EH[v.type]||"The first word names the kind of error and the rest says what Python found.";
+if(v.phase=="load")h="Check your internet connection and reload the page.";
+if(v.type=="SyntaxError"&&/^\s*(>>>|\.\.\.)/.test(sl||""))h="The >>> and ... at the start of a line are Python's prompt, not code. Delete them, and delete any lines that are program output.";
+return`<div class=err><div class=eh>${v.phase=="load"?"Python could not start":"Your code hit an error"}${v.line?`<span class=ln>line ${v.line}</span>`:""}</div><div class=et>${esc(v.type)}${v.msg?": "+esc(v.msg):""}</div>${sl!=null?`<pre class=el><b>${v.line}</b>${esc(sl)}</pre>`:""}<div class=ex>${esc(h)}</div>${v.full?`<details><summary>Technical details</summary><pre>${esc(v.full)}</pre></details>`:""}</div>`}
+const view=v=>(v.o?`<div class=lbl>Output</div><pre class=po>${esc(v.o.replace(/\n+$/,""))}</pre>`:v.ok?`<small>Ran fine. Nothing was printed.</small>`:"")+(v.ok?"":errBox(v));
+async function tr(){const p=$("o");p.hidden=false;p.innerHTML="<small>Running…</small>";p.innerHTML=view(await run($("ex").value))}
+async function ai(task,data){if(API.includes("YOUR-PROJECT"))throw new Error("Set the API constant at the top of the script to your Vercel URL.");let r;try{r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,task})})}catch(e){throw new Error("Can't reach the tutor server. Check your connection.")}let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||"Tutor server error (HTTP "+r.status+")");return j.text}
+async function tx(){const o=$("xp");o.hidden=false;o.textContent="Thinking…";try{o.textContent=await ai("explain",{code:clean($("ex").value)})}catch(e){o.textContent="Error: "+e.message}}
+async function run(code,test){code=clean(code);let o="";
+try{if(!py)py=await loadPyodide();py.setStdout({batched:s=>o+=s+"\n"});py.setStderr({batched:s=>o+=s+"\n"})}catch(e){return{ok:false,o,code,phase:"load",type:"Engine error",msg:String(e.message||e),full:String(e.stack||e)}}
+const g=py.globals.get("dict")();
+try{try{await py.runPythonAsync(code,{globals:g})}catch(e){return{ok:false,o,code,phase:"code",...perr(e)}}
+if(test){g.set("OUT",o);try{await py.runPythonAsync(test,{globals:g})}catch(e){return{ok:false,o,code,phase:"test",...perr(e)}}}
+return{ok:true,o,code}}finally{g.destroy()}}
+function showQ(t,qq,l,nx){const c=qq[1][qq[2]],s=[...qq[1]].sort(()=>Math.random()-.5);q={t,p:qq[0],o:s,a:s.indexOf(c),x:qq[3]};sel=null;ans=false;after=nx;lab=l;dq()}
+function dq(){A.innerHTML=hd(cur!=null?st/6*100:null)+`<h2>${esc(lab)}</h2><p>${esc(q.p)}</p>`+q.o.map((o,j)=>`<button class="opt ${ans?(j==q.a?"ok":j==sel?"no":""):j==sel?"sel":""}" onclick="pk(${j})">${esc(o)}</button>`).join("")+(ans?`<div class="msg ${sel==q.a?"ok":"no"}">${sel==q.a?"Correct!":"Not quite — the answer is highlighted."} ${esc(q.x)}</div>`:"")+`<button class=main onclick="${ans?"after()":"ck()"}">${ans?"Continue":"Check"}</button>`}
+function pk(j){if(!ans){sel=j;dq()}}
+function ck(){if(sel===null)return;ans=true;const ok=sel==q.a;rate(q.t,ok);if(ok)S.xp+=5;tick();sv();dq()}
+const gE=kd=>kd=="p"?{p:P[cur].p,h:P[cur].h,t:P.slice(0,cur+1).map(x=>x.t).join("\n"),s:pstart()}:D[cur][kd];
+function pstart(){if(S.pc[cur])return S.pc[cur];for(let j=cur-1;j>=0;j--)if(S.pp[j])return S.pp[j]+"\n\n# --- Unit "+(cur+1)+" project ---\n";return""}
+function code(t,kd){const e=gE(kd),pj=kd=="p";passed=false;A.innerHTML=hd(st/6*100)+`<h2>${pj?"Project "+(cur+1)+": "+P[cur].n:kd=="x"?"Your turn":"Debug it"}</h2>${pj?"<small>This project builds on your code from the previous units. Every earlier project test re-runs each time, so nothing may break.</small>":""}<p>${esc(e.p)}</p><textarea id=c style="min-height:${pj?340:200}px">${esc(e.s)}</textarea><button class=main id=chk onclick="cc('${kd}')">Check</button><button class=sec style="width:100%;margin-top:8px" onclick="ht('${kd}')">Hint</button><div id=res></div>`;tabs()}
+async function cc(kd){if(passed){st++;return stage()}const b=$("chk"),r=$("res"),e=gE(kd),k=K(cur),src=$("c").value;if(kd=="p"){S.pc[cur]=src;sv()}b.disabled=true;b.textContent="Running...";const v=await run(src,e.t);b.disabled=false;b.textContent="Check";tick();
+if(v.ok){passed=true;if(!k[kd]){k[kd]=1;S.xp+=kd=="x"?20:kd=="d"?25:60}if(kd=="p")S.pp[cur]=src;rate(cur,true);b.textContent=kd=="p"?"Finish":"Next";r.innerHTML=`<pre>${esc(v.o||"(no output)")}</pre><div class="msg ok">All checks passed.</div>`}
+else{k.w++;sv();r.innerHTML=view(v)+(k.w>=2?`<small>Stuck? The Hint button is free.</small>`:"")}}
+async function ht(kd){const e=gE(kd),r=$("res");r.insertAdjacentHTML("beforeend",`<div class=msg>Hint: ${esc(e.h)}</div>`);try{const t=await ai("hint",{prompt:e.p,code:$("c").value});r.insertAdjacentHTML("beforeend",`<div class=msg>Tutor: ${esc(t)}</div>`)}catch(x){}}
+function fin(){const k=K(cur);if(!k.fin){k.fin=1;S.xp+=50}sv();A.innerHTML=`<div style="text-align:center;padding:40px 0"><h2>${D[cur].t} complete!</h2><p>Mastery: ${LV[k.b]} · Your next review is scheduled automatically.</p><button class=main onclick="home()">Continue</button></div>`}
+function rev(){const t=day();rq=D.map((_,i)=>i).filter(i=>K(i).n&&K(i).due<=t).sort((a,b)=>K(b).w-K(a).w);cur=null;nr()}
+function nr(){if(!rq.length){A.innerHTML=`<div style="text-align:center;padding:40px 0"><h2>Review done!</h2><button class=main onclick="home()">Continue</button></div>`;return}const i=rq.shift();showQ(i,D[i].q[Math.random()*2|0],"Review · "+D[i].t,nr)}
+async function cov(){A.innerHTML=hd()+"<p>Reading this Python's own built-ins…</p>";const r=await run(`import builtins as B,json
+n=[x for x in dir(B) if not x.startswith("_")]
+ex=[x for x in n if isinstance(getattr(B,x),type) and issubclass(getattr(B,x),BaseException)]
+cn=[x for x in n if x in ("None","True","False","Ellipsis","NotImplemented")]
+print(json.dumps([[x for x in n if x not in ex and x not in cn],ex,cn]))`);
+if(!r.ok){A.innerHTML=hd()+errBox(r);return}
+const c=new Set(D.flatMap(t=>t.b.split(" "))),G=JSON.parse(r.o);
+A.innerHTML=hd()+`<h2>Built-in coverage</h2><p>Checked live against the built-ins of the Python running in your browser.</p>`+["Functions & types","Exceptions","Constants"].map((n,i)=>{const a=G[i],m=a.filter(x=>!c.has(x));return`<p><b>${n}: ${a.length-m.length}/${a.length} taught</b><small>${m.length?"Not yet covered: "+m.join(", "):"Complete"}</small></p>`}).join("")}
+const fmt=t=>t.split("```").map((s,i)=>{if(!(i%2))return esc(s.trim()).replace(/^## (.*)\n?/gm,"<h3>$1</h3>").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");const m=s.match(/^([\w+-]*)\n/),lang=(m?m[1]:"").toLowerCase(),body=s.replace(/^[\w+-]*\n/,"").replace(/\s+$/,"");
+if(["output","text","console","stdout","error"].includes(lang))return`<div class=lbl>${lang=="error"?"Expected error":"Expected output"}</div><pre class=exp>${esc(body)}</pre>`;
+return`<div class=cb><div class=lbl>Python</div><pre class=src>${esc(clean(body))}</pre><button class=sec onclick="rb(this)">Run this code</button><div class=ro hidden></div></div>`}).join("");
+const gc=()=>{try{return JSON.parse(localStorage.getItem(PF))||{}}catch(e){return{}}};
+const fl=t=>ai("lesson",{title:t.t,notes:t.n,builtins:t.b});
+async function rb(b){const w=b.closest(".cb"),o=w.querySelector(".ro");o.hidden=false;o.innerHTML="<small>Running…</small>";o.innerHTML=view(await run(w.querySelector(".src").textContent))}
+async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);return}el.innerHTML="<small>Writing your full lesson… this takes about 20 to 40 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x)}catch(e){el.textContent="Could not load the lesson: "+e.message}}
+async function bk(){const o=$("bs"),w=ms=>new Promise(r=>setTimeout(r,ms));let n=0,bad=0;for(const t of D){n++;o.textContent="Building "+n+"/"+D.length+": "+t.t;if(gc()[t.t])continue;let ok=0;for(let a=0;a<3&&!ok;a++){try{const x=await fl(t),m=gc();m[t.t]=x;localStorage.setItem(PF,JSON.stringify(m));ok=1}catch(e){if(/Set the API/.test(e.message)){o.textContent=e.message;return}await w(8000)}}if(!ok)bad++;await w(1500)}o.textContent=bad?"Done, but "+bad+" lesson(s) failed. Press the button again to retry them.":"All full lessons are ready (saved in this browser)."}
+home();
+</script></body></html>
