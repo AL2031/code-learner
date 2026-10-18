@@ -43,6 +43,8 @@ code{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding
 .af{margin:2px 0 6px;font-size:14px}.af i{font-style:normal;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:1px 8px;overflow-wrap:anywhere}
 .am .aqf{font-size:13px;font-weight:400;opacity:.8;margin-bottom:2px;overflow-wrap:anywhere}
 .chk{margin:10px 0 4px;padding:10px 12px;border:2px dashed var(--g);border-radius:12px}.chk p{margin:0 0 6px}.chk .lbl{margin-top:0}.chk[data-done] {border-style:solid;background:#58cc0222}.ckr{margin-top:8px;font-size:14px}
+.lc .opt{padding:10px 14px;margin:6px 0}.lprog{margin:4px 0 12px;font-size:14px}.lprog:empty{display:none}.lprog button{margin:4px 0 0 6px}.lprog small{margin-top:6px}.chk.done{border-style:solid;background:#58cc0222}
+.full .lprog+.blk h3{margin-top:10px}.lprog+.blk.e{border-top:0;margin-top:0;padding-top:0}
 .cb .ask{padding:8px 14px;font-size:inherit;border-radius:14px}
 #selask{position:fixed;z-index:50;background:var(--b);border-color:#1899d6;color:#fff;padding:6px 12px;font-size:14px;border-radius:12px;box-shadow:0 4px 14px #0005}
 textarea.aqi{display:block;min-height:0;margin:6px 0 8px;font:15px/1.4 system-ui,sans-serif}
@@ -651,7 +653,7 @@ const ORD=[`Variables & Types`,`Numbers & Math`,`Deep Dive: Numbers, Floats & Co
 const $=id=>document.getElementById(id),A=$("a"),API="https://good-code-tutorials.vercel.app/api/chat",PF="pf4",IV=[0,1,3,7,16,35],LV=["New","Started","Learning","Practiced","Strong","Mastered"];
 const day=()=>Math.floor(Date.now()/864e5),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let S={xp:0,streak:0,last:0,k:{}},cur=null,st=0,py=null,passed=false,q=null,sel=null,ans=false,after=null,lab="",rq=[];
-try{Object.assign(S,JSON.parse(localStorage.getItem("pq")))}catch(e){}if(!S.k)S.k={};S.pc=S.pc||{};S.pp=S.pp||{};if(S.v!=2){const nk={},pc={},pp={};OLDT.forEach((n,i)=>{const j=ORD.indexOf(n);if(S.k[i])nk[j]=S.k[i];if(S.pc[i])pc[j]=S.pc[i];if(S.pp[i])pp[j]=S.pp[i]});S.k=nk;S.pc=pc;S.pp=pp;S.v=2}
+try{Object.assign(S,JSON.parse(localStorage.getItem("pq")))}catch(e){}if(!S.k)S.k={};S.pc=S.pc||{};S.pp=S.pp||{};S.lc=S.lc||{};if(S.v!=2){const nk={},pc={},pp={};OLDT.forEach((n,i)=>{const j=ORD.indexOf(n);if(S.k[i])nk[j]=S.k[i];if(S.pc[i])pc[j]=S.pc[i];if(S.pp[i])pp[j]=S.pp[i]});S.k=nk;S.pc=pc;S.pp=pp;S.v=2}
 const sv=()=>{try{localStorage.setItem("pq",JSON.stringify(S))}catch(e){}};
 const K=i=>S.k[i]||(S.k[i]={b:0,w:0,due:0,n:0,x:0,d:0});
 function rate(i,ok){const k=K(i);k.n++;if(ok)k.b=Math.min(5,k.b+1);else{k.b=Math.max(0,k.b-2);k.w++}k.due=day()+IV[k.b];sv()}
@@ -725,16 +727,43 @@ cl();if(fe!==null&&buf.length)o+=cbk(fe,buf,ak);return o}
 function parse(t){const B=[];let b=null,fence=false,sec="";const open=(kind,title)=>{b={kind,title,sec,items:[]};B.push(b)};
 for(const l of String(t).replace(/\r/g,"").split("\n")){
 if(/^\s*```/.test(l)){if(!b)open("p","");b.items.push(l);fence=!fence;continue}
-if(!fence){let m=l.match(/^##\s+(.*)$/);if(m){sec=m[1].trim();open("h",sec);continue}
+if(!fence){let m=l.match(/^\s*\**CHECK:\**\s*(.+)$/);if(m){if(!b)open("p","");if(!b.check)b.check=m[1];continue}
+m=l.match(/^##\s+(.*)$/);if(m){sec=m[1].trim();open("h",sec);continue}
 m=l.match(/^\s*\*\*([^*`]+)\*\*\s*:?\s*$/);if(m){open("e",m[1].trim());continue}}
 if(!b)open("p","");b.items.push(l)}
 return B}
-const SECS=[];
-const fmt=t=>{SECS.length=0;for(const o of[ASKH,ASKF,ASKB,CKQ])for(const k in o)delete o[k];const u=cur!=null&&D[cur]?D[cur].t:"";
-return parse(t).map(b=>{const head=b.kind=="h"?`<h3>${inl(b.title)}</h3>`:b.kind=="e"?`<h4>${inl(b.title)}</h4>`:"";let ask="",dn="";
-if(b.items.some(x=>x.trim())){const n=SECS.push({unit:u,sec:b.sec,title:b.title,text:b.items.join("\n").trim()})-1;dn=` data-n=${n}`;
-ask=`<div class=askrow><button class=ask onclick="aq(${n})">Confused? Ask the AI</button></div><div class=askbox id=ab-${n} hidden></div>`}
-return`<div class="blk ${b.kind}"${dn}>${head}${body(b.items)}${ask}</div>`}).join("")};
+const SECS=[],LC={};let LCN=0,LCMSG="";
+const fmt=t=>{SECS.length=0;LCMSG="";for(const o of[ASKH,ASKF,ASKB,CKQ,LC])for(const k in o)delete o[k];const u=cur!=null&&D[cur]?D[cur].t:"",cc=lcc();
+return`<div class=lprog id=lprog></div>`+parse(t).map(b=>{const head=b.kind=="h"?`<h3>${inl(b.title)}</h3>`:b.kind=="e"?`<h4>${inl(b.title)}</h4>`:"";let ask="",dn="",card="";
+if(b.items.some(x=>x.trim())){const key=u+"|"+b.sec+"|"+b.title,c=parseLc(b.check)||parseLc(cc[key]),sk=/^remember/i.test(b.sec),n=SECS.push({unit:u,sec:b.sec,title:b.title,text:b.items.join("\n").trim(),key,ck:!!c,skip:sk})-1;dn=` data-n=${n}`;
+card=`<div id=lcw-${n}>${c?lcCard(key,c):""}</div>`;
+ask=`<div class=askrow><button class=ask onclick="aq(${n})">Confused? Ask the AI</button>${c||sk?"":` <button class=ask id=lcb-${n} onclick="lcGen(${n})">Quick check for XP</button>`}</div><div class=askbox id=ab-${n} hidden></div>`}
+return`<div class="blk ${b.kind}"${dn}>${head}${body(b.items)}${card}${ask}</div>`}).join("")};
+/* ---- Quick checks written into the lesson: "CHECK: question ;; correct ;; wrong ;; wrong ;; why". Tap an answer, no AI call needed. ---- */
+const lcc=()=>{try{return JSON.parse(localStorage.getItem("pq_lc"))||{}}catch(e){return{}}},slcc=m=>{try{localStorage.setItem("pq_lc",JSON.stringify(m))}catch(e){}};
+/* Parses a CHECK line into {q, opts (the correct answer is always opts[0]), why}. Returns null if it is unusable. */
+function parseLc(x){if(!x)return null;const p=String(x).replace(/^\s*\**CHECK:\**\s*/,"").split(";;").map(v=>v.trim()).filter(Boolean);if(p.length<3)return null;
+const opts=p.slice(1,Math.min(p.length,4));if(new Set(opts.map(o=>o.toLowerCase())).size<opts.length)return null;return{raw:String(x).replace(/^\s*\**CHECK:\**\s*/,""),q:p[0],opts,why:p[4]||""}}
+function lcCard(key,c){const id=++LCN;LC[id]={key,why:c.why,tries:0,done:0};
+return`<div class="chk lc" id=lc${id}><div class=lbl>Quick check${S.lc[key]?" · XP earned":" · 5 XP"}</div><p>${inl(c.q)}</p>${c.opts.map((t,i)=>({t,i})).sort(()=>Math.random()-.5).map(o=>`<button class=opt onclick="lcPick(${id},${o.i},this)">${inl(o.t)}</button>`).join("")}<div class=ckr id=lcr${id}></div></div>`}
+/* The right answer is index 0 before shuffling. XP: 5 for a first-try answer, 2 for a later one, and only once per lesson part ever. */
+function lcPick(id,i,b){const o=LC[id],c=$("lc"+id);if(!o||o.done||b.disabled)return;const r=$("lcr"+id);
+if(i==0){o.done=1;b.classList.add("ok");c.classList.add("done");c.querySelectorAll(".opt").forEach(x=>x.disabled=true);let m="Right!";
+if(!S.lc[o.key]){const xp=o.tries?2:5;S.lc[o.key]=1;S.xp+=xp;tick();sv();upXp();m+=" +"+xp+" XP"}else m+=" (you already earned XP for this part)";
+r.innerHTML=`<b>${m}</b>${o.why?`<div>${inl(o.why)}</div>`:""}`;lprog()}
+else{o.tries++;b.classList.add("no");b.disabled=true;r.textContent="Not quite. Try another answer."}}
+/* The line above the lesson: progress, plus a button to add checks to lessons that were saved before checks existed. */
+function lprog(){const e=$("lprog");if(!e)return;const ids=Object.keys(LC),tot=ids.length,dn=ids.filter(i=>S.lc[LC[i].key]).length,miss=SECS.filter(s=>!s.ck&&!s.skip).length;
+e.innerHTML=(tot?`<b>Quick checks: ${dn} of ${tot} done</b> · 5 XP each when you get it first try`:"")+(miss?`${tot?" ":""}<button class=ask id=lcall onclick="lcAll()">Add quick checks to ${tot?"the other ":"all "}${miss} parts</button>`:"")+(LCMSG?`<small>${esc(LCMSG)}</small>`:"")}
+/* Asks the AI for one check for one part. Returns true when a card was added. */
+async function lcGen(n,quiet){const s=SECS[n],b=$("lcb-"+n),w=$("lcw-"+n);if(!s||s.ck||s.busy||!w)return false;s.busy=1;if(b){b.disabled=true;b.textContent="Writing a check…"}let ok=false;
+try{const t=await ai("check",{unit:s.unit,section:s.sec,part:s.title,text:s.text}),c=parseLc(String(t).split("\n").find(l=>l.includes(";;")));if(!c)throw new Error("The AI's check was not usable. Please try again.");
+const m=lcc();m[s.key]=c.raw;slcc(m);s.ck=true;w.innerHTML=lcCard(s.key,c);if(b)b.remove();ok=true}
+catch(e){if(b){b.disabled=false;b.textContent="Quick check for XP"}if(!quiet)LCMSG="Could not add a check: "+e.message}
+s.busy=0;lprog();return ok}
+async function lcAll(){const q=SECS.map((s,i)=>i).filter(i=>!SECS[i].ck&&!SECS[i].skip),tot=q.length,btn=$("lcall");let done=0,fail=0;LCMSG="";if(btn)btn.disabled=true;
+await Promise.all([1,2,3].map(async()=>{while(q.length){const n=q.shift(),ok=await lcGen(n,true);ok?done++:fail++;const x=$("lcall");if(x){x.disabled=true;x.textContent="Adding quick checks… "+(done+fail)+"/"+tot}}}));
+LCMSG=fail?fail+" check(s) could not be added. The tutor may be busy, so press the button again.":"";lprog()}
 /* ---- Ask the AI about one block of the lesson. ----
    Precision: the learner can pin the exact words or code they mean (select text, or press "Ask about this code").
    Engagement: every answer comes with clickable follow-up questions and usually a quick check worth XP. */
@@ -795,7 +824,7 @@ const gr=t=>{t.style.height="auto";t.style.height=t.scrollHeight+4+"px"};
 const rs=b=>{const w=b.closest(".cb"),t=w.querySelector(".src");t.value=t.defaultValue;gr(t);w.querySelector(".ro").hidden=true};
 const fit=el=>{tabs();el.querySelectorAll("textarea.src").forEach(gr)};
 async function rb(b){const w=b.closest(".cb"),o=w.querySelector(".ro");o.hidden=false;o.innerHTML="<small>Running…</small>";o.innerHTML=view(await run(w.querySelector(".src").value))}
-async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);fit(el);return}el.innerHTML="<small>Writing your full lesson… this takes about 30 to 60 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x);fit(el)}catch(e){el.textContent="Could not load the lesson: "+e.message}}
+async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);fit(el);lprog();return}el.innerHTML="<small>Writing your full lesson… this takes about 30 to 60 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x);fit(el);lprog()}catch(e){el.textContent="Could not load the lesson: "+e.message}}
 async function bk(){const o=$("bs"),w=ms=>new Promise(r=>setTimeout(r,ms));let n=0,bad=0;for(const t of D){n++;o.textContent="Building "+n+"/"+D.length+": "+t.t;if(gc()[t.t])continue;let ok=0;for(let a=0;a<3&&!ok;a++){try{const x=await fl(t),m=gc();m[t.t]=x;localStorage.setItem(PF,JSON.stringify(m));ok=1}catch(e){if(/Set the API/.test(e.message)){o.textContent=e.message;return}await w(8000)}}if(!ok)bad++;await w(1500)}o.textContent=bad?"Done, but "+bad+" lesson(s) failed. Press the button again to retry them.":"All full lessons are ready (saved in this browser)."}
 home();
 </script></body></html>
