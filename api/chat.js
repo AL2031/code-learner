@@ -154,17 +154,22 @@ const ASK_CHECK = `
 THE LEARNER IS ANSWERING YOUR CHECK QUESTION
 Their latest message has the form "Check question: ... / My answer: ...". Judge it fairly: an answer that means the same thing is right, and tiny spelling slips or missing quotes in an otherwise correct answer do not matter. Begin your reply with exactly one of these openers: "Right!" or "Close." or "Not quite." Then, in one to three sentences, say why. If it was Right! you may end with one slightly harder CHECK line. If it was Close. or Not quite., give a hint but NOT the full answer, and do not write a CHECK line, because they will try again.`;
 
-// One quick check for one part of a lesson. Used for lessons saved before they contained CHECK lines.
-const CHECK_SYSTEM = `You write ONE multiple-choice quick check for PyQuest, a Python 3.12 course for absolute beginners. You are given one part of a lesson. Reply with exactly one line and nothing else, in this shape:
-CHECK: question ;; correct answer ;; wrong answer ;; wrong answer ;; one sentence saying why the correct answer is right
+// Quick checks for several parts of one lesson in a single request. The page uses this to fill in any part of a
+// lesson that has no CHECK line (lessons saved before checks existed, or a CHECK line the AI skipped or garbled).
+const CHECKS_SYSTEM = `You write multiple-choice quick checks for PyQuest, a Python 3.12 course for absolute beginners. You are given several numbered parts of one lesson. For EACH part, write exactly one line, in the same order, in this shape:
+CHECK <number>: question ;; correct answer ;; wrong answer ;; wrong answer ;; one sentence saying why the correct answer is right
+Reply with those lines and nothing else.
 
-Rules: the question tests the main idea of that part, ideally a prediction such as What does \`len([1, 2, 3])\` print? (inline code in backticks is fine). Use only what the part teaches. Each answer is short (under 8 words) and never contains ";;". The two wrong answers are plausible beginner mistakes. Never use "all of the above" or "none of the above". Work out any output by hand and be certain it is right; if you cannot be certain, ask a conceptual question instead.`;
+Rules: each question tests the main idea of its own part, ideally a prediction such as What does \`len([1, 2, 3])\` print? (inline code in backticks is fine). Use only what that part teaches. Each answer is short (under 8 words) and never contains ";;". The two wrong answers are plausible beginner mistakes. Never use "all of the above" or "none of the above". Work out any output by hand and be certain it is right; if you cannot be certain, ask a conceptual question instead.`;
 
 const TASKS = {
-  check: {
-    system: CHECK_SYSTEM, max: 1200, temp: 0.4, effort: "low",
-    user: d => `Unit: ${clip(d.unit, 120)}\nSection: ${clip(d.section, 120)}\nPart: ${clip(d.part, 120) || clip(d.section, 120)}\n\nText of that part:\n${clip(d.text, 6000)}`,
-    valid: d => typeof d.text === "string" && d.text.trim(),
+  checks: {
+    system: CHECKS_SYSTEM, max: 4500, temp: 0.4, effort: "low",
+    user: d => `Unit: ${clip(d.unit, 120)}\n\n` + d.parts.map(p =>
+      `PART ${p.i}\nSection: ${clip(p.section, 120)}\nTitle: ${clip(p.title, 120) || clip(p.section, 120)}\nText:\n${clip(p.text, 1500)}`
+    ).join("\n\n---\n\n"),
+    valid: d => Array.isArray(d.parts) && d.parts.length > 0 && d.parts.length <= 24
+      && d.parts.every(p => p && Number.isInteger(p.i) && typeof p.text === "string" && p.text.trim()),
   },
   lesson: {
     system: d => LESSON_BASE + (d.part === 2 ? LESSON_PART2 : LESSON_PART1),
