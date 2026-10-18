@@ -113,6 +113,20 @@ function lessonUser(d) {
 const EXPLAIN_SYSTEM = `You are PyQuest's friendly Python 3.12 tutor for absolute beginners. Explain the code you are given line by line: what each line does, what it prints and why. Never assume the reader knows a word: the first time a line uses a type or term such as int (a whole number), float (a number with a decimal point), str (text), bool (True or False), None, a list, a dict, a function, an argument or a return value, say in everyday words what it is, and add a tiny extra example in a sentence if that helps. Plain text, short paragraphs, no markdown. Quote a line of code only when it helps, and never use fenced blocks.`;
 
 
+// "Ask the AI": a learner is confused about one part of a lesson and asks a question about it.
+const ASK_BASE = `You are PyQuest's friendly Python 3.12 tutor for absolute beginners. A learner is reading one part of a lesson and is confused about it. Answer THEIR question, using the lesson part given below as context.
+
+HOW TO ANSWER
+- Start with the direct answer in one or two plain sentences, then explain.
+- If they only say they are confused, or ask for a simpler explanation, re-explain the idea from scratch with a different everyday analogy than the lesson used, then give a tiny example.
+- Never assume they know a word. The first time you use a term such as int, float, str, bool, None, list, dict, function, argument or return value, say in everyday words what it means.
+- Be warm and never condescending. Do not repeat the whole lesson. Stay under 180 words unless they ask for more.
+- If the question is not about Python or this lesson, say so kindly and steer back to the lesson.
+
+FORMAT
+- Plain text paragraphs. Bullet lines may start with "- ". Use **bold** only for new terms and put code names in \`backticks\`. No headings, tables or HTML.
+- If you show code, use a fenced python block that runs exactly as written when pasted into an empty file (no >>> prompts, no output inside it, under 12 lines). Directly after it, show what it prints in a fenced block whose language tag is exactly \`output\`. The output must be exactly what Python 3.12 prints; if you are not certain of it, choose a different example.`;
+
 const TASKS = {
   lesson: {
     system: d => LESSON_BASE + (d.part === 2 ? LESSON_PART2 : LESSON_PART1),
@@ -124,6 +138,23 @@ const TASKS = {
     system: EXPLAIN_SYSTEM, max: 1500, temp: 0.3, effort: "low",
     user: d => clip(d.code, 6000),
     valid: d => typeof d.code === "string" && d.code.trim(),
+  },
+  ask: {
+    system: d => ASK_BASE + `\n\nLESSON CONTEXT\nUnit: ${clip(d.unit, 120)}\nSection: ${clip(d.section, 120)}\nPart the learner is asking about: ${clip(d.part, 120) || clip(d.section, 120)}\n\nText of that part:\n${clip(d.text, 6000)}`,
+    // The learner's earlier questions and your earlier answers for this part, then the new question.
+    messages: d => {
+      const out = [];
+      for (const x of (Array.isArray(d.history) ? d.history.slice(-6) : [])) {
+        if (x && (x.role === "user" || x.role === "assistant") && typeof x.text === "string" && x.text.trim()) {
+          out.push({ role: x.role, content: clip(x.text, 3000) });
+        }
+      }
+      out.push({ role: "user", content: clip(d.question, 1000) });
+      return out;
+    },
+    max: 1500, temp: 0.4, effort: "low",
+    valid: d => typeof d.question === "string" && d.question.trim() && typeof d.text === "string" && d.text.trim()
+      && (d.history === undefined || Array.isArray(d.history)),
   },
   hint: {
     system: HINT_SYSTEM, max: 600, temp: 0.3, effort: "low",
@@ -234,7 +265,10 @@ module.exports = async function handler(req, res) {
       temperature: task.temp,
       max_completion_tokens: task.max,
       reasoning_effort: task.effort,
-      messages: [{ role: "system", content: typeof task.system === "function" ? task.system(d) : task.system }, { role: "user", content: task.user(d) }],
+      messages: [
+        { role: "system", content: typeof task.system === "function" ? task.system(d) : task.system },
+        ...(task.messages ? task.messages(d) : [{ role: "user", content: task.user(d) }]),
+      ],
     });
     send(res, 200, { text });
   } catch (e) {
