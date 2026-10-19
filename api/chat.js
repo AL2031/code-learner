@@ -46,7 +46,15 @@ CODE AND OUTPUT RULES (very important)
 5. The output must be exactly what Python 3.12 prints, character for character. Work each one out carefully. With this many examples, accuracy matters more than quantity: prefer examples whose output you can verify by hand, and if you are not certain of an output, pick a different example. Avoid set ordering, id(), hash() of strings, and floats that do not print cleanly (one exception: 0.1 + 0.2 prints 0.30000000000000004 and may be used to teach float rounding).
 6. Keep each python block under 12 lines. Use more blocks rather than longer ones.`;
 
-const ENTRY_SPEC = `Give EVERY built-in name you are given its own mini-entry, in the order given. Each entry starts with the line "**name**" and covers: what it is in one sentence; its signature and what each argument means (including defaults); what it returns and the type of that value; TWO examples with their output (a basic one, then a variation with a different argument or type; they may share one block when short); one common mistake and how to fix it; then its CHECK line. If a name is a constant or a type rather than a function, adapt the entry sensibly. If you are given no names, leave this section out.`;
+const ENTRY_SPEC = `Give EVERY built-in name you are given its own mini-entry, in the order given. Each entry starts with the line "**name**" and then follows the steps below, in this order, written for someone who has never programmed. The point of an entry is that the reader understands the name, so show it working before you describe its details.
+1. What it does: one or two plain sentences with a quick everyday comparison (for example, print is like reading something out loud).
+2. A line starting "Try it:" with the simplest possible call as a python block, then its output block, then one sentence on what happened.
+3. A line starting "Options:" (skip this step if the name takes no options). Cover ONLY the options a beginner will really use, at most three. Give each as a bullet line "- \`option\`: what it changes, in plain words, and what Python does when you leave it out" (that is its default, so say once that a default means "what Python does when you do not choose"). Then ONE python block that uses those options, each call on its own line, with its output block. Explain any odd symbol in plain words the first time it appears (for example, the * in *values only means "you can give as many values as you like"). Rarely used options are either skipped or get one short sentence ending "you can ignore this for now". Never list an option you have not explained and shown.
+4. A line starting "You get back:" saying what value comes back and its type in plain words, and showing it when that helps (for example, save the result in a variable, then print the variable). If the answer is None, explain that this means "nothing useful comes back, because its job is to do something, like show text".
+5. Only if the name has options: a line starting "Full signature:" with the signature in backticks, then one sentence saying you never need to memorize it. Never put the signature anywhere before step 4.
+6. One common mistake and how to fix it.
+7. The entry's CHECK line.
+Keep sentences short and explain every term. If a name is a constant or a type rather than a function, adapt the steps sensibly. If you are given no names, leave this section out.`;
 
 const LESSON_PART1 = `
 
@@ -108,7 +116,7 @@ function lessonUser(d) {
       ? `Built-in names that MUST each get their own entry, in this order: ${mine.join(" ")}`
       : "There are no built-in names for this part, so leave out the built-in entries section.",
   ];
-  if (mine.length > 6) lines.push("That is a long list, so keep each entry compact (about 70 words plus a short code block) but still cover every required element.");
+  if (mine.length > 6) lines.push("That is a long list, so keep each entry compact (about 110 words plus short code blocks), but never skip steps 1 to 4 and never leave an option unexplained.");
   if (other.length) lines.push(two
     ? `Part 1 already covered these built-ins, so do not cover them again: ${other.join(" ")}`
     : `Part 2 will cover these built-ins, so do not cover them here: ${other.join(" ")}`);
