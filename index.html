@@ -1,5 +1,4 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PyQuest – Learn Python</title>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <style>
 :root{--bg:#fff;--fg:#1f2937;--card:#f3f4f6;--g:#58cc02;--gd:#46a302;--r:#ff4b4b;--b:#1cb0f6;--line:#e5e7eb}
 @media(prefers-color-scheme:dark){:root{--bg:#131f24;--fg:#e5eef2;--card:#1f2c33;--line:#37464f}}
@@ -10,8 +9,8 @@
 button{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--fg);border-radius:14px;padding:10px 16px;font-weight:700}
 button:disabled{opacity:.6}.card,.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:14px 16px}
 .opt.sel{border-color:var(--b)}.opt.ok{border-color:var(--g);background:#58cc0233}.opt.no{border-color:var(--r);background:#ff4b4b33}
-.main{width:100%;margin-top:14px;background:var(--g);border-color:var(--gd);color:#fff;text-transform:uppercase;letter-spacing:.5px}
-.sec{background:var(--b);border-color:#1899d6;color:#fff}.x{padding:4px 10px}
+.main{width:100%;margin-top:14px;background:var(--g);border-color:var(--gd);color:#10230a;text-transform:uppercase;letter-spacing:.5px}
+.sec{background:var(--b);border-color:#1899d6;color:#041a2b}.x{padding:4px 10px}
 textarea{width:100%;min-height:150px;background:#0f172a;color:#e2e8f0;border:2px solid var(--line);border-radius:12px;padding:12px;font:14px/1.5 ui-monospace,monospace;tab-size:4}
 pre{background:#0f172a;color:#a7f3d0;padding:12px;border-radius:12px;white-space:pre-wrap;margin:8px 0}
 .msg{padding:12px 14px;border-radius:12px;margin-top:12px;font-weight:600;white-space:pre-wrap}.msg.ok{background:#58cc0233}.msg.no{background:#ff4b4b33}
@@ -23,7 +22,7 @@ p{white-space:pre-wrap}small{display:block;opacity:.75;margin-top:6px}.tag{float
 .exp{background:var(--card);color:var(--fg);border:2px dashed var(--line)}.po{border-left:4px solid var(--g)}
 .err{margin-top:10px;border:2px solid var(--r);border-radius:12px;padding:12px 14px;background:#ff4b4b1a}
 .err .eh{font-weight:700;color:var(--r);display:flex;gap:8px;align-items:center}
-.err .ln{background:var(--r);color:#fff;border-radius:8px;padding:0 8px;font-size:13px}
+.err .ln{background:var(--r);color:#2b0000;border-radius:8px;padding:0 8px;font-size:13px}
 .err .et{font:700 15px/1.4 ui-monospace,monospace;margin:6px 0;word-break:break-word}
 .err .el{background:#0f172a;color:#fecaca;margin:6px 0}.err .el b{color:#94a3b8;font-weight:400;margin-right:14px}
 /* lesson text */
@@ -46,9 +45,12 @@ code{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding
 .lc .opt{padding:10px 14px;margin:6px 0}.lprog{margin:4px 0 12px;font-size:14px}.lprog:empty{display:none}.lprog button{margin:4px 0 0 6px}.lprog small{margin-top:6px}.chk.done{border-style:solid;background:#58cc0222}.chk.wait p{margin:0;opacity:.75;animation:pqw 1.1s ease-in-out infinite alternate}@keyframes pqw{from{opacity:.35}to{opacity:.9}}
 .full .lprog+.blk h3{margin-top:10px}.lprog+.blk.e{border-top:0;margin-top:0;padding-top:0}
 .cb .ask{padding:8px 14px;font-size:inherit;border-radius:14px}
-#selask{position:fixed;z-index:50;background:var(--b);border-color:#1899d6;color:#fff;padding:6px 12px;font-size:14px;border-radius:12px;box-shadow:0 4px 14px #0005}
+#selask{position:fixed;z-index:50;background:var(--b);border-color:#1899d6;color:#041a2b;padding:6px 12px;font-size:14px;border-radius:12px;box-shadow:0 4px 14px #0005}
 textarea.aqi{display:block;min-height:0;margin:6px 0 8px;font:15px/1.4 system-ui,sans-serif}
 .err .ex{margin:6px 0}.err details{margin-top:6px;font-size:13px}.err summary{cursor:pointer;opacity:.8}.err details pre{font-size:12px;color:#cbd5e1}
+
+:focus-visible{outline:3px solid var(--b);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head><body><div id="a"></div><script>
 const D=[
 {t:`Variables & Types`,b:`print type int float str bool None True False`,n:`A variable is a name that holds a value: age = 12. Core types: int (5), float (2.5), str ("hi"), bool (True / False) and None (no value). print() shows values; type() tells you what you have.`,
@@ -420,8 +422,7 @@ print(True & False, True | False, {1, 2} & {2, 3})
 print(bin(-5), ~5, -5 & 0xFF)`,
 q:[[`What is 6 & 3?`,[`7`,`2`,`5`],1,`110 AND 011 is 010, which is 2.`],[`What does 1 << 3 equal?`,[`3`,`8`,`4`],1,`Shifting left by 3 multiplies by 2 three times.`]],
 x:{p:`Print, one per line: 12 ^ 10, then the binary form of 10 padded with zeros to 8 digits, then the number of one-bits in 255 (use bit_count), then 1 << 10.`,s:``,h:`f"{10:08b}" and (255).bit_count()`,t:`assert OUT.strip().splitlines()==["6","00001010","8","1024"],"expected 6, 00001010, 8, 1024"`},
-d:{p:`This should print True (6 is even) but prints 0 because of operator precedence. Fix it.`,s:`n = 6
-print(n & 1 == 0)`,h:`Add parentheses around n & 1.`,t:`assert OUT.strip()=="True","it must print True"`}},
+d:{p:`This should print 5 (shift 1 left by 2, then add 1) but prints 8. Fix it.`,s:`print(1 << 2 + 1)`,h:`+ happens before <<, so put parentheses around 1 << 2.`,t:`assert OUT.strip()=="5","it must print 5"`}},
 {t:`Standard Library Tour`,b:`__import__ sorted sum min max`,n:`import math brings in a module; use import x, from x import y or import x as z, then call x.y(). if __name__ == "__main__": runs code only when the file is executed directly. dir(module) lists names and help(module.func) shows docs. Essentials: math (sqrt, floor, ceil, pi, gcd, isclose, log); random (random, randint, choice, shuffle, seed for repeatable results); json (dumps and loads convert data to text and back); datetime (date, datetime, timedelta, strftime); collections (Counter, defaultdict, deque, namedtuple); itertools (chain, product, permutations, combinations, accumulate, islice); functools (reduce, lru_cache, partial); re (search, findall, sub); statistics (mean, median); plus sys, os and pathlib.Path.`,
 ex:`import math, json, random, re, statistics
 from collections import Counter, deque
@@ -649,20 +650,27 @@ got=await run_all(lab,[("gcd",(12,18)),("gcd",(7,3))])
 assert got==[("ok",6),("ok",1)],"run_all returns results in job order"`}
 ];
 const ORD=[`Variables & Types`,`Numbers & Math`,`Deep Dive: Numbers, Floats & Conversions`,`Text & Number Bases`,`String Methods in Depth`,`Logic & Loops`,`Collections`,`Collection Methods in Depth`,`Functions`,`Deep Dive: Arguments, Closures & Decorators`,`Deep Dive: Comprehensions & Generators`,`Errors & Exceptions`,`Files & Input`,`Context Managers`,`Exceptions I: Core Hierarchy`,`Exceptions II: Files, OS & Imports`,`Exceptions III: Text, Syntax, Control & Warnings`,`Bitwise Operators & Number Systems`,`Bytes & Raw Data`,`Objects & Introspection`,`Deep Dive: Inheritance, Dunders & Dataclasses`,`Special Values & Interpreter`,`Code as Data & Namespaces`,`Standard Library Tour`,`match, Walrus & Type Hints`,`Testing: assert & unittest`,`Async Iteration`,`Async/Await & asyncio`],OLDT=D.map(t=>t.t);
-{const m=new Map(D.map((t,i)=>[t.t,[t,P[i]]]));D.length=0;P.length=0;ORD.forEach(n=>{const[t,p]=m.get(n);D.push(t);P.push(p)})}
-const $=id=>document.getElementById(id),A=$("a"),API="https://good-code-tutorials.vercel.app/api/chat",PF="pf4",IV=[0,1,3,7,16,35],LV=["New","Started","Learning","Practiced","Strong","Mastered"];
-const day=()=>Math.floor(Date.now()/864e5),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+{const m=new Map(D.map((t,i)=>[t.t,[t,P[i]]]));D.length=0;P.length=0;ORD.forEach(n=>{const e=m.get(n);if(e){D.push(e[0]);P.push(e[1])}});m.forEach((e,n)=>{if(!ORD.includes(n)){D.push(e[0]);P.push(e[1])}})}
+const $=id=>document.getElementById(id),A=$("a"),API=/github\.io$/.test(location.hostname)||location.protocol=="file:"?"https://good-code-tutorials.vercel.app/api/chat":"/api/chat",PF="pf4",IV=[0,1,3,7,16,35],LV=["New","Started","Learning","Practiced","Strong","Mastered"];
+const day=()=>{const d=new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5)},esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let S={xp:0,streak:0,last:0,k:{}},cur=null,st=0,py=null,passed=false,q=null,sel=null,ans=false,after=null,lab="",rq=[];
-try{Object.assign(S,JSON.parse(localStorage.getItem("pq")))}catch(e){}if(!S.k)S.k={};S.pc=S.pc||{};S.pp=S.pp||{};S.lc=S.lc||{};if(S.v!=2){const nk={},pc={},pp={};OLDT.forEach((n,i)=>{const j=ORD.indexOf(n);if(S.k[i])nk[j]=S.k[i];if(S.pc[i])pc[j]=S.pc[i];if(S.pp[i])pp[j]=S.pp[i]});S.k=nk;S.pc=pc;S.pp=pp;S.v=2}
-const sv=()=>{try{localStorage.setItem("pq",JSON.stringify(S))}catch(e){}};
+try{Object.assign(S,JSON.parse(localStorage.getItem("pq")))}catch(e){}if(!S.k)S.k={};S.pc=S.pc||{};S.pp=S.pp||{};S.lc=S.lc||{};if(!S.v||S.v<2){const nk={},pc={},pp={};OLDT.forEach((n,i)=>{const j=ORD.indexOf(n);if(S.k[i])nk[j]=S.k[i];if(S.pc[i])pc[j]=S.pc[i];if(S.pp[i])pp[j]=S.pp[i]});S.k=nk;S.pc=pc;S.pp=pp;S.v=2}
+const slug=t=>t.t.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+/* Progress is saved under stable unit slugs (v3) so reordering or inserting units never scrambles it; in memory it is keyed by index. */
+const KEYED=["k","pc","pp"];
+const deser=o=>{const r={...o};for(const f of KEYED){const m={};for(const[k,v]of Object.entries(o[f]||{})){const i=o.v==3?D.findIndex(t=>slug(t)==k):+k;if(i>=0&&D[i])m[i]=v}r[f]=m}r.v=2;return r};
+const ser=()=>{const o={...S,v:3};for(const f of KEYED)o[f]=Object.fromEntries(Object.entries(S[f]).filter(([i])=>D[i]).map(([i,v])=>[slug(D[i]),v]));return o};
+if(S.v==3)S=deser(S);
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const sv=()=>{try{localStorage.setItem("pq",JSON.stringify(ser()))}catch(e){}};
 const K=i=>S.k[i]||(S.k[i]={b:0,w:0,due:0,n:0,x:0,d:0});
 function rate(i,ok){const k=K(i);k.n++;if(ok)k.b=Math.min(5,k.b+1);else{k.b=Math.max(0,k.b-2);k.w++}k.due=day()+IV[k.b];sv()}
 function tick(){const t=day();if(S.last!=t){S.streak=S.last==t-1?S.streak+1:1;S.last=t}}
 const hd=p=>`<div class=top><button class=x onclick="home()">Back</button>${p!=null?`<div class=bar><i style="width:${p}%"></i></div>`:`<span style="flex:1"></span>`}<span id=xpv>XP ${S.xp}</span></div>`;
-const tabs=()=>{for(const t of A.querySelectorAll("textarea"))t.onkeydown=e=>{if(e.key=="Tab"){e.preventDefault();document.execCommand("insertText",false,"    ")}}};
+const tabs=()=>{for(const t of A.querySelectorAll("textarea")){t.getAttribute("aria-label")||t.setAttribute("aria-label",t.placeholder||"Python code editor (Esc then Tab leaves the editor)");t.onkeydown=e=>{if(e.key=="Escape"){t._f=1;return}if(e.key=="Tab"&&!t._f&&!e.shiftKey){e.preventDefault();t.setRangeText("    ",t.selectionStart,t.selectionEnd,"end");t.dispatchEvent(new Event("input"))}else if(e.key!="Tab"&&e.key!="Shift")t._f=0}}};
 
 function home(){cur=null;const t=day(),due=D.filter((_,i)=>K(i).n&&K(i).due<=t).length,avg=Math.round(D.reduce((s,_,i)=>s+K(i).b,0)/D.length*20);
-A.innerHTML=`<div class=top><b>PyQuest</b><span style="margin-left:auto">Streak ${S.streak} · XP ${S.xp}</span></div><h2>Python: zero to every built-in</h2><p>Overall mastery: ${avg}%</p>`+(due?`<button class=main onclick="rev()">Review ${due} due topic${due>1?"s":""}</button>`:`<small>No reviews due. Finish a lesson to start your spaced-repetition schedule.</small>`)+D.map((l,i)=>{const k=K(i);return`<button class=card onclick="go(${i})">${i+1}. ${l.t}<span class=tag>${LV[k.b]}${k.w>=2&&k.b<3?" · needs work":""}${k.n&&k.due<=t?" · due":""}${k.p?" · project done":""}</span><div class=bar style="height:8px;margin-top:6px"><i style="width:${k.b*20}%"></i></div></button>`}).join("")+`<button class=card onclick="bk()">Build all full lessons</button><small id=bs></small><button class=card onclick="cov()">Built-in coverage check</button>`}
+A.innerHTML=`<div class=top><b>PyQuest</b><span style="margin-left:auto">Streak ${S.streak} · XP ${S.xp}</span></div><h2>Python: zero to every built-in</h2><p>Overall mastery: ${avg}%</p>`+(due?`<button class=main onclick="rev()">Review ${due} due topic${due>1?"s":""}</button>`:`<small>No reviews due. Finish a lesson to start your spaced-repetition schedule.</small>`)+D.map((l,i)=>{const k=K(i);return`<button class=card onclick="go(${i})">${i+1}. ${l.t}<span class=tag>${LV[k.b]}${k.w>=2&&k.b<3?" · needs work":""}${k.n&&k.due<=t?" · due":""}${k.p?" · project done":""}</span><div class=bar style="height:8px;margin-top:6px"><i style="width:${k.b*20}%"></i></div></button>`}).join("")+`<button class=card onclick="exp()">Export progress backup</button><button class=card onclick="imp()">Import progress backup</button><button class=card onclick="cov()">Built-in coverage check</button>`}
 function go(i){cur=i;st=0;stage()}
 function stage(){const t=D[cur];if(st==0)return learn(t);if(st<3)return showQ(cur,t.q[st-1],`Quick check ${st}/2`,()=>{st++;stage()});if(st<5)return code(t,st==3?"x":"d");if(st==5)return code(t,"p");fin()}
 function learn(t){A.innerHTML=hd(0)+`<h2>${t.t}</h2><p>${esc(t.n)}</p><div>${t.b.split(" ").map(x=>`<span class=chip>${x}</span>`).join("")}</div><div id=full class=full></div><button class=sec onclick="lf(1)">Rewrite full lesson</button><p>Edit the example and run it:</p><textarea id=ex>${esc(t.ex)}</textarea><button class=sec style="margin-top:8px" onclick="tr()">Run it</button> <button class=sec onclick="tx()">Explain this code</button><div id=o hidden></div><div class="msg ai" id=xp hidden></div><button class=main onclick="st=1;stage()">Continue</button>`;tabs();lf()}
@@ -670,7 +678,7 @@ function learn(t){A.innerHTML=hd(0)+`<h2>${t.t}</h2><p>${esc(t.n)}</p><div>${t.b
 const clean=s=>{const L=String(s).replace(/\r/g,"").split("\n");if(!L.some(l=>/^\s*>>>(\s|$)/.test(l)))return L.join("\n");return L.map(l=>l.match(/^\s*(?:>>>|\.\.\.)(?: (.*))?$/)).filter(Boolean).map(m=>m[1]||"").join("\n").trim()};
 /* Reads a Pyodide traceback: error type, message, and the line number in the learner's code. */
 function perr(e){const full=String(e&&e.message||e).trim(),L=full.split("\n").map(x=>x.trimEnd()).filter(x=>x.trim()),last=L[L.length-1]||"Error",m=last.match(/^([A-Za-z_][\w.]*)(?::\s?(.*))?$/);let line=null;for(const x of full.matchAll(/File "<exec>", line (\d+)/g))line=+x[1];return{type:m?m[1]:"Error",msg:m?m[2]||"":last,line,full}}
-const EH={SyntaxError:"Python could not read this line. Look for a missing quote, bracket or colon, or a stray character. Also make sure no program output got mixed into the code.",IndentationError:"The spaces at the start of a line don't match. Lines inside if, for, while or def must all be indented by the same amount (4 spaces).",NameError:"Python doesn't know this name yet. Check the spelling, and make sure the variable is created before this line runs.",UnboundLocalError:"A variable was used inside a function before it was given a value.",TypeError:"A value has the wrong type for this operation, for example adding text to a number, or calling a function with the wrong number of arguments.",ValueError:"The type is right but the value is not, for example int(\"abc\").",IndexError:"You asked for a position that doesn't exist in the list or string. Counting starts at 0.",KeyError:"That key is not in the dictionary.",ZeroDivisionError:"You can't divide by zero.",AttributeError:"This object has no such attribute or method. Check the spelling and what type the object is.",ModuleNotFoundError:"That module isn't available in this in-browser Python.",ImportError:"Python could not import that name. Check the spelling and the module.",RecursionError:"A function kept calling itself and never stopped.",FileNotFoundError:"There is no file with that name here. In the browser, create it first with open(name, \"w\")."};
+const EH={TimeoutError:"Your code ran for over 10 seconds and was stopped. Look for a loop that never ends, such as while True without a break, or a counter that never changes.",SyntaxError:"Python could not read this line. Look for a missing quote, bracket or colon, or a stray character. Also make sure no program output got mixed into the code.",IndentationError:"The spaces at the start of a line don't match. Lines inside if, for, while or def must all be indented by the same amount (4 spaces).",NameError:"Python doesn't know this name yet. Check the spelling, and make sure the variable is created before this line runs.",UnboundLocalError:"A variable was used inside a function before it was given a value.",TypeError:"A value has the wrong type for this operation, for example adding text to a number, or calling a function with the wrong number of arguments.",ValueError:"The type is right but the value is not, for example int(\"abc\").",IndexError:"You asked for a position that doesn't exist in the list or string. Counting starts at 0.",KeyError:"That key is not in the dictionary.",ZeroDivisionError:"You can't divide by zero.",AttributeError:"This object has no such attribute or method. Check the spelling and what type the object is.",ModuleNotFoundError:"That module isn't available in this in-browser Python.",ImportError:"Python could not import that name. Check the spelling and the module.",RecursionError:"A function kept calling itself and never stopped.",FileNotFoundError:"There is no file with that name here. In the browser, create it first with open(name, \"w\")."};
 function errBox(v){if(v.phase=="test")return`<div class="msg no">Not quite yet: ${esc(v.type=="AssertionError"&&v.msg?v.msg:"the checker expected something your code didn't provide ("+v.type+(v.msg?": "+v.msg:"")+")")}</div>`;
 const Ls=(v.code||"").split("\n"),sl=v.line&&v.line<=Ls.length?Ls[v.line-1]:null;let h=EH[v.type]||"The first word names the kind of error and the rest says what Python found.";
 if(v.phase=="load")h="Check your internet connection and reload the page.";
@@ -680,13 +688,20 @@ const view=v=>(v.o?`<div class=lbl>Output</div><pre class=po>${esc(v.o.replace(/
 async function tr(){const p=$("o");p.hidden=false;p.innerHTML="<small>Running…</small>";p.innerHTML=view(await run($("ex").value))}
 async function ai(task,data){if(API.includes("YOUR-PROJECT"))throw new Error("Set the API constant at the top of the script to your Vercel URL.");let r;try{r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,task})})}catch(e){throw new Error("Can't reach the tutor server. Check your connection.")}let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||"Tutor server error (HTTP "+r.status+")");return j.text}
 async function tx(){const o=$("xp");o.hidden=false;o.textContent="Thinking…";try{const a=await ai("explain",{code:clean($("ex").value)});o.innerHTML=body(String(a).replace(/\r/g,"").split("\n"),false);fit(o)}catch(e){o.textContent="Error: "+e.message}}
-async function run(code,test){code=clean(code);let o="";
-try{if(!py)py=await loadPyodide();py.setStdout({batched:s=>o+=s+"\n"});py.setStderr({batched:s=>o+=s+"\n"})}catch(e){return{ok:false,o,code,phase:"load",type:"Engine error",msg:String(e.message||e),full:String(e.stack||e)}}
-const g=py.globals.get("dict")();
-try{try{await py.runPythonAsync(code,{globals:g})}catch(e){return{ok:false,o,code,phase:"code",...perr(e)}}
-if(test){g.set("OUT",o);try{await py.runPythonAsync(test,{globals:g})}catch(e){return{ok:false,o,code,phase:"test",...perr(e)}}}
-return{ok:true,o,code}}finally{g.destroy()}}
-function showQ(t,qq,l,nx){const c=qq[1][qq[2]],s=[...qq[1]].sort(()=>Math.random()-.5);q={t,p:qq[0],o:s,a:s.indexOf(c),x:qq[3]};sel=null;ans=false;after=nx;lab=l;dq()}
+const WSRC=`importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js");
+let py;self.onmessage=async({data:{id,code,test}})=>{let o="";const send=m=>self.postMessage({id,o,...m});
+try{if(!py)py=await loadPyodide();py.setStdout({batched:s=>o+=s+"\\n"});py.setStderr({batched:s=>o+=s+"\\n"})}catch(e){return send({ok:false,phase:"load",err:String(e.message||e),stack:String(e.stack||e)})}
+self.postMessage({id,started:1});const g=py.globals.get("dict")();
+try{try{await py.runPythonAsync(code,{globals:g})}catch(e){return send({ok:false,phase:"code",err:String(e.message||e)})}
+if(test){g.set("OUT",o);try{await py.runPythonAsync(test,{globals:g})}catch(e){return send({ok:false,phase:"test",err:String(e.message||e)})}}
+send({ok:true})}finally{g.destroy()}}`;
+let W=null,WID=0;const LIM=10000;
+function run(code,test){code=clean(code);return new Promise(res=>{if(!W)W=new Worker(URL.createObjectURL(new Blob([WSRC],{type:"text/javascript"})));const id=++WID,w=W;let done=0,tm=0;
+const fin=v=>{if(done)return;done=1;clearTimeout(tm);w.removeEventListener("message",on);res(v)};
+const on=({data:m})=>{if(m.id!==id)return;if(m.started){tm=setTimeout(()=>{w.terminate();if(W===w)W=null;fin({ok:false,o:"",code,phase:"code",type:"TimeoutError",msg:"The program was stopped after "+LIM/1000+" seconds.",full:""})},LIM);return}
+if(m.ok)fin({ok:true,o:m.o,code});else if(m.phase=="load")fin({ok:false,o:m.o,code,phase:"load",type:"Engine error",msg:m.err,full:m.stack});else fin({ok:false,o:m.o,code,phase:m.phase,...perr(m.err)})};
+w.addEventListener("message",on);w.onerror=e=>fin({ok:false,o:"",code,phase:"load",type:"Engine error",msg:String(e.message||"worker failed"),full:""});w.postMessage({id,code,test})})}
+function showQ(t,qq,l,nx){const c=qq[1][qq[2]],s=shuf(qq[1]);q={t,p:qq[0],o:s,a:s.indexOf(c),x:qq[3]};sel=null;ans=false;after=nx;lab=l;dq()}
 function dq(){A.innerHTML=hd(cur!=null?st/6*100:null)+`<h2>${esc(lab)}</h2><p>${esc(q.p)}</p>`+q.o.map((o,j)=>`<button class="opt ${ans?(j==q.a?"ok":j==sel?"no":""):j==sel?"sel":""}" onclick="pk(${j})">${esc(o)}</button>`).join("")+(ans?`<div class="msg ${sel==q.a?"ok":"no"}">${sel==q.a?"Correct!":"Not quite — the answer is highlighted."} ${esc(q.x)}</div>`:"")+`<button class=main onclick="${ans?"after()":"ck()"}">${ans?"Continue":"Check"}</button>`}
 function pk(j){if(!ans){sel=j;dq()}}
 function ck(){if(sel===null)return;ans=true;const ok=sel==q.a;rate(q.t,ok);if(ok)S.xp+=5;tick();sv();dq()}
@@ -694,7 +709,7 @@ const gE=kd=>kd=="p"?{p:P[cur].p,h:P[cur].h,t:P.slice(0,cur+1).map(x=>x.t).join(
 function pstart(){if(S.pc[cur])return S.pc[cur];for(let j=cur-1;j>=0;j--)if(S.pp[j])return S.pp[j]+"\n\n# --- Unit "+(cur+1)+" project ---\n";return""}
 function code(t,kd){const e=gE(kd),pj=kd=="p";passed=false;A.innerHTML=hd(st/6*100)+`<h2>${pj?"Project "+(cur+1)+": "+P[cur].n:kd=="x"?"Your turn":"Debug it"}</h2>${pj?"<small>This project builds on your code from the previous units. Every earlier project test re-runs each time, so nothing may break.</small>":""}<p>${esc(e.p)}</p><textarea id=c style="min-height:${pj?340:200}px">${esc(e.s)}</textarea><button class=main id=chk onclick="cc('${kd}')">Check</button><button class=sec style="width:100%;margin-top:8px" onclick="ht('${kd}')">Hint</button><div id=res></div>`;tabs()}
 async function cc(kd){if(passed){st++;return stage()}const b=$("chk"),r=$("res"),e=gE(kd),k=K(cur),src=$("c").value;if(kd=="p"){S.pc[cur]=src;sv()}b.disabled=true;b.textContent="Running...";const v=await run(src,e.t);b.disabled=false;b.textContent="Check";tick();
-if(v.ok){passed=true;if(!k[kd]){k[kd]=1;S.xp+=kd=="x"?20:kd=="d"?25:60}if(kd=="p")S.pp[cur]=src;rate(cur,true);b.textContent=kd=="p"?"Finish":"Next";r.innerHTML=`<pre>${esc(v.o||"(no output)")}</pre><div class="msg ok">All checks passed.</div>`}
+if(v.ok){passed=true;if(!k[kd]){k[kd]=1;rate(cur,true);S.xp+=kd=="x"?20:kd=="d"?25:60}if(kd=="p")S.pp[cur]=src;b.textContent=kd=="p"?"Finish":"Next";r.innerHTML=`<pre>${esc(v.o||"(no output)")}</pre><div class="msg ok">All checks passed.</div>`}
 else{k.w++;sv();r.innerHTML=view(v)+(k.w>=2?`<small>Stuck? The Hint button is free.</small>`:"")}}
 async function ht(kd){const e=gE(kd),r=$("res");r.insertAdjacentHTML("beforeend",`<div class=msg>Hint: ${esc(e.h)}</div>`);try{const t=await ai("hint",{prompt:e.p,code:$("c").value});r.insertAdjacentHTML("beforeend",`<div class=msg>Tutor: ${inl(t)}</div>`)}catch(x){}}
 function fin(){const k=K(cur);if(!k.fin){k.fin=1;S.xp+=50}sv();A.innerHTML=`<div style="text-align:center;padding:40px 0"><h2>${D[cur].t} complete!</h2><p>Mastery: ${LV[k.b]} · Your next review is scheduled automatically.</p><button class=main onclick="home()">Continue</button></div>`}
@@ -825,7 +840,10 @@ const gr=t=>{t.style.height="auto";t.style.height=t.scrollHeight+4+"px"};
 const rs=b=>{const w=b.closest(".cb"),t=w.querySelector(".src");t.value=t.defaultValue;gr(t);w.querySelector(".ro").hidden=true};
 const fit=el=>{tabs();el.querySelectorAll("textarea.src").forEach(gr)};
 async function rb(b){const w=b.closest(".cb"),o=w.querySelector(".ro");o.hidden=false;o.innerHTML="<small>Running…</small>";o.innerHTML=view(await run(w.querySelector(".src").value))}
-async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);fit(el);lprog();lcFill();return}el.innerHTML="<small>Writing your full lesson… this takes about 30 to 60 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x);fit(el);lprog();lcFill()}catch(e){el.textContent="Could not load the lesson: "+e.message}}
-async function bk(){const o=$("bs"),w=ms=>new Promise(r=>setTimeout(r,ms));let n=0,bad=0;for(const t of D){n++;o.textContent="Building "+n+"/"+D.length+": "+t.t;if(gc()[t.t])continue;let ok=0;for(let a=0;a<3&&!ok;a++){try{const x=await fl(t),m=gc();m[t.t]=x;localStorage.setItem(PF,JSON.stringify(m));ok=1}catch(e){if(/Set the API/.test(e.message)){o.textContent=e.message;return}await w(8000)}}if(!ok)bad++;await w(1500)}o.textContent=bad?"Done, but "+bad+" lesson(s) failed. Press the button again to retry them.":"All full lessons are ready (saved in this browser)."}
+const stat=async t=>{try{const r=await fetch("lessons/"+slug(t)+".md");if(r.ok)return await r.text()}catch(e){}return null};
+async function lf(force){const t=D[cur],el=$("full");if(!el)return;const c=await stat(t)||gc()[t.t];if(c&&!force){el.innerHTML=fmt(c);fit(el);lprog();lcFill();return}el.innerHTML="<small>Writing your full lesson… this takes about 30 to 60 seconds.</small>";try{const x=await fl(t),m=gc();m[t.t]=x;try{localStorage.setItem(PF,JSON.stringify(m))}catch(e){}el.innerHTML=fmt(x);fit(el);lprog();lcFill()}catch(e){el.textContent="Could not load the lesson: "+e.message}}
+function exp(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({pq:ser(),lc:localStorage.getItem("pq_lc")})],{type:"application/json"}));a.download="pyquest-progress.json";a.click()}
+function imp(){const i=document.createElement("input");i.type="file";i.accept=".json";i.onchange=async()=>{try{const j=JSON.parse(await i.files[0].text());if(!j.pq||typeof j.pq.xp!="number")throw 0;S=deser({k:{},pc:{},pp:{},lc:{},...j.pq});sv();if(j.lc)localStorage.setItem("pq_lc",j.lc);home()}catch(e){alert("That file is not a PyQuest backup.")}};i.click()}
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 home();
 </script></body></html>
