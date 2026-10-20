@@ -1,5 +1,5 @@
 // Offline cache: app shell + Pyodide from jsDelivr (stale-while-revalidate). API calls are never cached.
-const C = "pq-v1";
+const C = "pq-v2";
 self.addEventListener("install", e => e.waitUntil(caches.open(C).then(c => c.addAll(["./"])).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(clients.claim()));
 self.addEventListener("fetch", e => {
