@@ -283,6 +283,31 @@ async function callGroq(body) {
   throw last || { status: 429, msg: "The tutor is busy right now. Please try again in a minute." };
 }
 
+// ----------------------------------------------------- abuse protection
+// Per-IP + daily limits (shared via Upstash Redis if UPSTASH_REDIS_REST_URL/TOKEN are set, else per instance).
+const crypto = require("crypto");
+const LIMIT = parseInt(process.env.RATE_LIMIT_PER_MIN || "20", 10);
+const DAILY_CAP = parseInt(process.env.DAILY_CAP || "5000", 10);
+const WEIGHT = { lesson: 4, checks: 2 };
+const mem = new Map(), cache = new Map();
+async function hit(key, ttl, w) {
+  const U = process.env.UPSTASH_REDIS_REST_URL, T = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (U && T) {
+    try {
+      const r = await fetch(U + "/pipeline", { method: "POST", headers: { Authorization: "Bearer " + T }, signal: AbortSignal.timeout(2000),
+        body: JSON.stringify([["INCRBY", key, w], ["EXPIRE", key, ttl, "NX"]]) });
+      return (await r.json())[0].result;
+    } catch (e) { /* fall through to memory */ }
+  }
+  const now = Date.now(), e = mem.get(key);
+  if (!e || e.t < now) {
+    if (mem.size > 5000) for (const [k, v] of mem) if (v.t < now) mem.delete(k);
+    mem.set(key, { n: w, t: now + ttl * 1000 }); return w;
+  }
+  return (e.n += w);
+}
+const ckey = d => crypto.createHash("sha256").update(JSON.stringify(d)).digest("hex");
+
 // ------------------------------------------------------------------ handler
 
 function send(res, status, obj) {
@@ -308,8 +333,18 @@ module.exports = async function handler(req, res) {
 
   let d = req.body;
   if (typeof d === "string") { try { d = JSON.parse(d); } catch (e) { d = null; } }
+  if (d && JSON.stringify(d).length > 40000) return send(res, 413, { error: "Request too large." });
   const task = d && TASKS[d.task];
   if (!task || !task.valid(d)) return send(res, 400, { error: "Bad request." });
+
+  const cacheable = d.task === "lesson" || d.task === "checks", ck = cacheable && ckey(d);
+  const hitC = cacheable && cache.get(ck);
+  if (hitC && hitC.t > Date.now()) return send(res, 200, { text: hitC.text });
+  const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown", w = WEIGHT[d.task] || 1;
+  if (await hit("rl:" + ip + ":" + Math.floor(Date.now() / 60000), 90, w) > LIMIT) {
+    res.setHeader("Retry-After", "30"); return send(res, 429, { error: "Too many requests. Please slow down for a minute." });
+  }
+  if (await hit("day:" + new Date().toISOString().slice(0, 10), 90000, w) > DAILY_CAP) return send(res, 429, { error: "The tutor has hit its daily limit. Please come back tomorrow." });
 
   try {
     const text = await callGroq({
@@ -322,6 +357,7 @@ module.exports = async function handler(req, res) {
         ...(task.messages ? task.messages(d) : [{ role: "user", content: task.user(d) }]),
       ],
     });
+    if (cacheable) { if (cache.size > 200) cache.delete(cache.keys().next().value); cache.set(ck, { text, t: Date.now() + 864e5 }); }
     send(res, 200, { text });
   } catch (e) {
     send(res, e.status || 500, { error: e.msg || "Something went wrong." });
